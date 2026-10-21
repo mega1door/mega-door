@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { useCategories } from "../lib/categoriesStore";
+import { useModels } from "../lib/modelsStore";
+import { getThumbnailUrl } from "../lib/imageUrl";
 import DragScroller from "./DragScroller";
 
 const BASE = import.meta.env.BASE_URL;
 
-// صور تمثيلية حقيقية لكل قسم (لا رسومات توضيحية) - بانتظار صور حقيقية مخصّصة
-// لقسم "القواطع" تحديداً (لا توجد بعد في أرشيف الصور)، فتُستخدم صورة الهيرو
-// كبديل مؤقت أمين بدل اختراع/استخدام صورة لا تمثّل القسم فعلاً.
-const categoryImages: Record<string, string> = {
-  interior: `${BASE}images/models/md-108-1.jpg`,
+// صور تمثيلية حقيقية لكل قسم (لا رسومات توضيحية) - تُستخدم صور الموديلات الحقيقية
+// المتاحة لكل قسم، مع صور العلامة الثابتة كبديل مضمون.
+const fallbackImages: Record<string, string> = {
+  interior: `${BASE}images/brand/hero-door.jpg`,
   exterior: `${BASE}images/brand/exterior-category.jpg`,
   partitions: `${BASE}images/brand/hero-door.jpg`,
 };
@@ -20,6 +21,15 @@ const categoryImages: Record<string, string> = {
  */
 export default function MobileCategoryShowcase() {
   const categories = useCategories();
+  const models = useModels();
+
+  const getCategoryImage = (categoryId: string) => {
+    const categoryModel = models.find((m) => m.category === categoryId && m.images && m.images.length > 0);
+    if (categoryModel && categoryModel.images[0]) {
+      return getThumbnailUrl(categoryModel.images[0]);
+    }
+    return fallbackImages[categoryId] ?? fallbackImages.partitions;
+  };
 
   return (
     <section>
@@ -31,11 +41,14 @@ export default function MobileCategoryShowcase() {
             className="door-glow relative block aspect-[4/5] w-[78%] shrink-0 snap-center snap-always overflow-hidden rounded-[20px] border border-silver/25 bg-surface sm:w-[300px]"
           >
             <img
-              src={categoryImages[c.id] ?? categoryImages.partitions}
+              src={getCategoryImage(c.id)}
               alt={c.label}
               loading="lazy"
-          decoding="async"
+              decoding="async"
               className="h-full w-full object-contain"
+              onError={(e) => {
+                e.currentTarget.src = fallbackImages[c.id] ?? fallbackImages.partitions;
+              }}
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent px-5 py-5">
               <p className="font-display text-lg font-extrabold text-white">{c.label}</p>

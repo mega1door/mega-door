@@ -26,18 +26,18 @@ export default function SiteSettingsManager() {
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-border bg-surface p-5 sm:p-6">
-      <h2 className="text-base font-bold text-ink">إعدادات الموقع</h2>
-      <p className="mt-1 text-xs leading-5 text-muted">
+    <div className="mb-6 rounded-xl border border-white/20 bg-surface p-5 sm:p-6 shadow-lg">
+      <h2 className="text-lg font-bold text-ink">إعدادات الموقع</h2>
+      <p className="mt-1.5 text-sm font-medium leading-relaxed text-slate-300">
         صورة الهيرو (أول صورة يشوفها الزائر بأعلى الصفحة الرئيسية).
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
-        <div className="h-24 w-32 overflow-hidden rounded-lg border border-border bg-canvas">
+        <div className="h-24 w-32 overflow-hidden rounded-lg border border-white/20 bg-canvas">
           {settings.heroImageUrl ? (
             <img src={settings.heroImageUrl} alt="صورة الهيرو الحالية" className="h-full w-full object-contain" />
           ) : (
-            <div className="flex h-full items-center justify-center text-[11px] text-muted">الصورة الافتراضية</div>
+            <div className="flex h-full items-center justify-center text-xs sm:text-sm font-medium text-slate-400">الصورة الافتراضية</div>
           )}
         </div>
 
@@ -45,7 +45,7 @@ export default function SiteSettingsManager() {
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="rounded-full border border-border px-4 py-2 text-xs font-bold text-ink transition hover:border-brand hover:text-brand disabled:opacity-60"
+          className="rounded-full border border-white/25 px-5 py-2.5 text-sm font-bold text-ink transition hover:border-brand hover:text-brand hover:bg-brand/10 disabled:opacity-60"
         >
           {busy ? "...جارِ الرفع" : "تغيير صورة الهيرو"}
         </button>
@@ -59,7 +59,7 @@ export default function SiteSettingsManager() {
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
 
-      {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
+      {error && <p className="mt-2 text-sm font-semibold text-red-300">{error}</p>}
     </div>
   );
 }

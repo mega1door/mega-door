@@ -83,15 +83,15 @@ export default function SpecTemplateManager() {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none";
-  const labelClass = "mb-1.5 block text-xs font-bold text-muted";
+    "w-full rounded-lg border border-white/20 bg-canvas px-3.5 py-2.5 text-sm sm:text-base font-medium text-ink placeholder:text-slate-500 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none transition";
+  const labelClass = "mb-2 block text-sm font-semibold text-slate-200";
 
   return (
-    <div className="mb-6 rounded-xl border border-border bg-surface p-5 sm:p-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="mb-6 rounded-xl border border-white/20 bg-surface p-5 sm:p-6 shadow-lg">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-ink">قوالب المواصفات</h2>
-          <p className="mt-1 text-xs leading-5 text-muted">
+          <h2 className="text-lg font-bold text-ink">قوالب المواصفات</h2>
+          <p className="mt-1.5 text-sm font-medium leading-relaxed text-slate-300">
             قالب تعبّيه مرة وحدة (النوع، أين يُستخدم، نقاط المواصفات) وتختاره بعدين عند
             إضافة أي موديل جديد يشترك بنفس المواصفات، فتتعبى الحقول تلقائياً وتقدر تعدّلها.
           </p>
@@ -100,7 +100,7 @@ export default function SpecTemplateManager() {
           <button
             type="button"
             onClick={startAdd}
-            className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white transition hover:brightness-110"
+            className="shrink-0 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110 shadow-md shadow-brand/20"
           >
             + إضافة قالب جديد
           </button>
@@ -108,22 +108,22 @@ export default function SpecTemplateManager() {
       </div>
 
       {view.mode === "list" && (
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-white/10">
           {templates.map((t) => (
-            <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
+            <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div>
-                <p className="text-sm font-bold text-ink">{t.name}</p>
-                <p className="mt-0.5 text-xs text-muted">
+                <p className="text-base font-bold text-ink">{t.name}</p>
+                <p className="mt-1 text-sm font-medium text-slate-300">
                   {t.material || "بدون نوع محدد"}
                   {t.usage ? ` · ${t.usage}` : ""}
                   {t.specs && t.specs.length > 0 ? ` · ${t.specs.length} نقطة مواصفات` : ""}
                 </p>
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 gap-2.5">
                 <button
                   type="button"
                   onClick={() => startEdit(t.id)}
-                  className="rounded-full border border-border px-3 py-1 text-xs font-bold text-ink transition hover:border-brand hover:text-brand"
+                  className="rounded-full border border-white/25 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-ink transition hover:border-brand hover:text-brand hover:bg-brand/10"
                 >
                   تعديل
                 </button>
@@ -131,7 +131,7 @@ export default function SpecTemplateManager() {
                   type="button"
                   onClick={() => handleDelete(t.id, t.name)}
                   disabled={deletingId === t.id}
-                  className="rounded-full border border-border px-3 py-1 text-xs font-bold text-red-300 transition hover:border-red-400 disabled:opacity-50"
+                  className="rounded-full border border-red-500/40 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-red-300 transition hover:border-red-400 hover:bg-red-500/10 disabled:opacity-50"
                 >
                   حذف
                 </button>
@@ -139,7 +139,7 @@ export default function SpecTemplateManager() {
             </li>
           ))}
           {templates.length === 0 && (
-            <li className="py-4 text-center text-xs text-muted">
+            <li className="py-6 text-center text-sm font-medium leading-relaxed text-slate-400">
               لا توجد قوالب بعد - أضيفي قالب أول مرة تضيفين فيها موديل جديد لتسريع باقي الموديلات المشابهة.
             </li>
           )}
@@ -149,7 +149,7 @@ export default function SpecTemplateManager() {
       {(view.mode === "add" || view.mode === "edit") && (
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <p className="rounded-lg border border-red-400/40 bg-red-400/10 px-3 py-2 text-sm text-red-300">{error}</p>
+            <p className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2.5 text-sm font-semibold text-red-300">{error}</p>
           )}
           <div>
             <label className={labelClass}>اسم القالب *</label>
@@ -190,18 +190,18 @@ export default function SpecTemplateManager() {
               placeholder={"طلاء PU مقاوم للخدش والرطوبة\nعزل صوتي جيد"}
             />
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-brand px-5 py-2 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+              className="rounded-full bg-brand px-6 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60 shadow-md shadow-brand/20"
             >
               {saving ? "...جارِ الحفظ" : "حفظ"}
             </button>
             <button
               type="button"
               onClick={() => setView({ mode: "list" })}
-              className="rounded-full border border-border px-5 py-2 text-xs font-bold text-ink transition hover:border-brand hover:text-brand"
+              className="rounded-full border border-white/25 px-6 py-2.5 text-sm font-bold text-ink transition hover:border-brand hover:text-brand hover:bg-brand/10"
             >
               إلغاء
             </button>

@@ -9,6 +9,7 @@ import { setPageSEO } from "../lib/seo";
 import PopularSlider from "../components/PopularSlider";
 import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
 import CircularCarousel from "../components/CircularCarousel";
+import { getThumbnailUrl } from "../lib/imageUrl";
 
 const features: { icon: "headset" | "shield" | "drop" | "mute"; label: string }[] = [
   { icon: "headset", label: "خدمة ما بعد البيع" },
@@ -73,7 +74,7 @@ export default function HomePage() {
     const add = (src: string | undefined, alt: string) => {
       if (!src || seen.has(src) || items.length >= 10) return;
       seen.add(src);
-      items.push({ src, alt });
+      items.push({ src: getThumbnailUrl(src), alt });
     };
     models.forEach((m) => add(m.images[0], `باب ${m.name}`));
     models.forEach((m) => m.images.slice(1).forEach((src) => add(src, `باب ${m.name}`)));

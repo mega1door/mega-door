@@ -106,13 +106,13 @@ export default function ModelForm({
   }
 
   const inputClass =
-    "w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand focus:outline-none";
-  const labelClass = "mb-1.5 block text-xs font-bold text-muted";
+    "w-full rounded-lg border border-white/20 bg-canvas px-3.5 py-2.5 text-sm sm:text-base font-medium text-ink placeholder:text-slate-500 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none transition";
+  const labelClass = "mb-2 block text-sm font-semibold text-slate-200";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <p className="rounded-lg border border-red-400/40 bg-red-400/10 px-3 py-2 text-sm text-red-300">{error}</p>
+        <p className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2.5 text-sm font-semibold text-red-300">{error}</p>
       )}
 
       {templates.length > 0 && (
@@ -130,7 +130,7 @@ export default function ModelForm({
               </option>
             ))}
           </select>
-          <p className="mt-1.5 text-[11.5px] text-muted">
+          <p className="mt-2 text-sm font-medium text-slate-300">
             تعبّي الحقول أدناه تلقائياً وتقدرين تعدّلينها بعدها بحرية - ما ترتبط بالقالب.
           </p>
         </div>
@@ -209,18 +209,20 @@ export default function ModelForm({
               key={label}
               type="button"
               onClick={() => handleSelectStandardSize(label)}
-              className={`rounded-[10px] border px-3 py-2 text-[12.5px] font-bold transition ${
-                selectedSize === label ? "border-brand text-brand-dark" : "border-border bg-canvas text-ink"
+              className={`rounded-xl border px-4 py-2.5 text-sm font-bold transition shadow-sm ${
+                selectedSize === label
+                  ? "border-brand bg-brand/15 text-brand-dark ring-1 ring-brand"
+                  : "border-white/20 bg-canvas text-slate-200 hover:border-white/40 hover:text-white"
               }`}
             >
               {label}
             </button>
           ))}
         </div>
-        <p className="mb-2 mt-3 text-[12.5px] font-bold text-muted">أو قياس حر</p>
-        <div className="flex gap-2.5">
+        <p className="mb-2 mt-4 text-sm font-bold text-slate-300">أو قياس حر</p>
+        <div className="flex gap-3">
           <label className="flex-1">
-            <span className="mb-1 block text-[11.5px] text-muted">العرض (سم)</span>
+            <span className="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-300">العرض (سم)</span>
             <input
               type="number"
               inputMode="decimal"
@@ -232,7 +234,7 @@ export default function ModelForm({
             />
           </label>
           <label className="flex-1">
-            <span className="mb-1 block text-[11.5px] text-muted">الارتفاع (سم)</span>
+            <span className="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-300">الارتفاع (سم)</span>
             <input
               type="number"
               inputMode="decimal"
@@ -262,22 +264,22 @@ export default function ModelForm({
         <ImageUploader images={values.images} onChange={(images) => update("images", images)} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 pt-2">
+      <div className="flex flex-wrap items-center gap-4 pt-3">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-full bg-brand px-6 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+          className="rounded-full bg-brand px-7 py-3 text-sm sm:text-base font-bold text-white transition hover:brightness-110 disabled:opacity-60 shadow-lg shadow-brand/20"
         >
           {saving ? "...جارِ الحفظ" : initial ? "حفظ التعديلات" : "إضافة الموديل"}
         </button>
 
         {/* بدون أي قيد على العدد - أي موديل تقدر تعلّمه/تلغيه "الأكثر طلباً" بحرية تامة */}
-        <label className="flex items-center gap-2 text-sm font-bold text-ink">
+        <label className="flex items-center gap-2.5 text-sm sm:text-base font-bold text-ink cursor-pointer">
           <input
             type="checkbox"
             checked={values.isPopular}
             onChange={(e) => update("isPopular", e.target.checked)}
-            className="h-4 w-4 accent-brand"
+            className="h-4.5 w-4.5 rounded accent-brand"
           />
           الأكثر طلباً
         </label>
@@ -285,7 +287,7 @@ export default function ModelForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border border-border px-6 py-2.5 text-sm font-bold text-ink transition hover:border-brand hover:text-brand"
+          className="rounded-full border border-white/25 px-7 py-3 text-sm sm:text-base font-bold text-ink transition hover:border-brand hover:text-brand hover:bg-brand/10"
         >
           إلغاء
         </button>

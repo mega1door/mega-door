@@ -1,23 +1,59 @@
 import { supabase } from "./supabaseClient";
-import { fileToResizedBlob } from "./imageResize";
+import { createOptimizedWebPPair, fileToWebPBlob } from "./imageResize";
 
 /**
- * يصغّر ملف صورة ويرفعه فعلياً إلى Supabase Storage (bucket عام "site-images")
- * ويعيد رابطه العام النهائي.
+ * يرفع الصورة بعد تحويلها تلقائياً إلى صيغة WebP الحديثة والمحسّنة.
  *
- * "models" و"site" يُستخدمان من لوحة الإدارة (يتطلبان تسجيل دخول - انظر
- * سياسات RLS). "custom-designs" يُستخدم من نموذج "صمم تفاصيل باب مخصصة
- * بالكامل" العام - له سياسة رفع خاصة تسمح لأي زائر (بدون تسجيل دخول) يرفع
- * صورة تصميمه، محصورة بهذا المجلد فقط.
+ * عند رفع صور الموديلات ("models"):
+ * - يتم توليد نسختين WebP محلياً في المتصفح:
+ *   1. نسخة العرض الكامل (Full) حتى 1400px وجودة 85% لحفظ تفاصيل الخشب والنقوش ودرجة اللون.
+ *   2. نسخة مصغّرة للبطاقات (Thumbnail) حتى 480px وجودة 80% لتحميل فائق السرعة وتوفير الباندويث.
+ * - يتم تخزين النسختين المحسّنتين فقط في Supabase Storage دون رفع الصورة الأصلية غير المضغوطة نهائياً.
+ * - يُعاد الرابط العام للنسخة الكاملة، وتُشتق النسخة المصغرة منه تلقائياً عبر getThumbnailUrl.
+ *
+ * عند رفع صور الموقع ("site") أو التصاميم المخصصة ("custom-designs"):
+ * - يتم تحويلها إلى WebP عالي الجودة ومحسّن أيضاً.
  */
-export async function uploadImage(file: File, folder: "models" | "site" | "custom-designs"): Promise<string> {
-  const { blob, contentType } = await fileToResizedBlob(file);
-  const ext = contentType === "image/png" ? "png" : "jpg";
-  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+export async function uploadImage(
+  file: File,
+  folder: "models" | "site" | "custom-designs"
+): Promise<string> {
+  const id = crypto.randomUUID();
+
+  if (folder === "models") {
+    const { full, thumb } = await createOptimizedWebPPair(file);
+    const fullPath = `models/${id}.webp`;
+    const thumbPath = `models/${id}-thumb.webp`;
+
+    const [fullUpload, thumbUpload] = await Promise.all([
+      supabase.storage.from("site-images").upload(fullPath, full.blob, {
+        contentType: "image/webp",
+        cacheControl: "31536000, immutable",
+        upsert: false,
+      }),
+      supabase.storage.from("site-images").upload(thumbPath, thumb.blob, {
+        contentType: "image/webp",
+        cacheControl: "31536000, immutable",
+        upsert: false,
+      }),
+    ]);
+
+    if (fullUpload.error) throw fullUpload.error;
+    if (thumbUpload.error) throw thumbUpload.error;
+
+    const { data } = supabase.storage.from("site-images").getPublicUrl(fullPath);
+    return data.publicUrl;
+  }
+
+  // صور الهيرو أو التصاميم المخصصة
+  const maxDim = folder === "site" ? 1600 : 1280;
+  const quality = folder === "site" ? 0.88 : 0.82;
+  const { blob } = await fileToWebPBlob(file, maxDim, quality);
+  const path = `${folder}/${id}.webp`;
 
   const { error } = await supabase.storage.from("site-images").upload(path, blob, {
-    contentType,
-    cacheControl: "3600",
+    contentType: "image/webp",
+    cacheControl: "31536000, immutable",
     upsert: false,
   });
   if (error) throw error;

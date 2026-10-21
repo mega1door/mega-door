@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { uploadImage } from "../../lib/imageUpload";
+import { getThumbnailUrl, handleThumbError } from "../../lib/imageUrl";
 
 /**
  * رفع عدّة صور للموديل وترتيبها. الصورة الأولى هي الصورة الرئيسية (تظهر بالبطاقة).
@@ -50,19 +51,24 @@ export default function ImageUploader({
     <div>
       <div className="flex flex-wrap gap-3">
         {images.map((src, i) => (
-          <div key={i} className="relative h-24 w-20 overflow-hidden rounded-lg border border-border bg-canvas">
-            <img src={src} alt={`صورة ${i + 1}`} className="h-full w-full object-contain" />
+          <div key={i} className="relative h-24 w-20 overflow-hidden rounded-lg border border-white/20 bg-canvas shadow-sm">
+            <img
+              src={getThumbnailUrl(src)}
+              alt={`صورة ${i + 1}`}
+              onError={(e) => handleThumbError(e, src)}
+              className="h-full w-full object-contain"
+            />
             {i === 0 && (
-              <span className="absolute right-1 top-1 rounded bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <span className="absolute right-1 top-1 rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow">
                 رئيسية
               </span>
             )}
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-canvas/85 px-1 py-0.5">
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 border-t border-white/10 bg-canvas/90 px-1.5 py-1">
               <button
                 type="button"
                 onClick={() => moveImage(i, -1)}
                 disabled={i === 0}
-                className="px-1 text-xs text-ink disabled:opacity-25"
+                className="px-1 text-sm font-bold text-ink transition hover:text-brand disabled:opacity-25"
                 aria-label="تحريك للأعلى بالترتيب"
               >
                 ↑
@@ -70,7 +76,7 @@ export default function ImageUploader({
               <button
                 type="button"
                 onClick={() => removeImage(i)}
-                className="px-1 text-xs text-red-300"
+                className="px-1 text-sm font-bold text-red-300 transition hover:text-red-400"
                 aria-label="حذف الصورة"
               >
                 ×
@@ -79,7 +85,7 @@ export default function ImageUploader({
                 type="button"
                 onClick={() => moveImage(i, 1)}
                 disabled={i === images.length - 1}
-                className="px-1 text-xs text-ink disabled:opacity-25"
+                className="px-1 text-sm font-bold text-ink transition hover:text-brand disabled:opacity-25"
                 aria-label="تحريك للأسفل بالترتيب"
               >
                 ↓
@@ -92,7 +98,7 @@ export default function ImageUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="flex h-24 w-20 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-[11px] font-bold text-muted transition hover:border-brand hover:text-brand disabled:opacity-60"
+          className="flex h-24 w-20 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/30 text-xs sm:text-sm font-bold text-slate-300 transition hover:border-brand hover:text-brand disabled:opacity-60"
         >
           {busy ? "...جارِ الرفع" : "+ صورة"}
         </button>
@@ -107,9 +113,9 @@ export default function ImageUploader({
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
-      <p className="mt-2 text-[11px] text-muted">
-        الصورة الأولى هي الصورة الرئيسية بالبطاقة. استخدم الأسهم لإعادة الترتيب.
+      {error && <p className="mt-2.5 text-sm font-semibold text-red-300">{error}</p>}
+      <p className="mt-2.5 text-xs sm:text-sm font-medium leading-relaxed text-slate-300">
+        الصورة الأولى هي الصورة الرئيسية بالبطاقة. يتم تحويل الصور تلقائياً إلى WebP (نسخة عرض كامل + نسخة مصغّرة للبطاقات). استخدم الأسهم لإعادة الترتيب.
       </p>
     </div>
   );

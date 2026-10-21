@@ -75,6 +75,13 @@ function emitChange() {
 }
 
 async function fetchModels(): Promise<void> {
+  // فحص محلي لاختبار تجربة الزائر عند خلو الكتالوج دون المساس بقاعدة بيانات Supabase
+  if (typeof window !== "undefined" && window.location.search.includes("empty=1")) {
+    cache = [];
+    emitChange();
+    return;
+  }
+
   const { data, error } = await supabase
     .from("models")
     .select(

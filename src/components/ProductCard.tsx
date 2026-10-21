@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { DoorModel } from "../types/model";
+import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 
 export default function ProductCard({ model }: { model: DoorModel }) {
   const subtitle = [model.material, model.color, model.dimensions].filter(Boolean).join(" · ");
@@ -11,10 +12,11 @@ export default function ProductCard({ model }: { model: DoorModel }) {
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-canvas">
         <img
-          src={model.images[0]}
+          src={getThumbnailUrl(model.images[0])}
           alt={`باب ${model.name} - موديل ${model.modelNumber}`}
           loading="lazy"
           decoding="async"
+          onError={(e) => handleThumbError(e, model.images[0])}
           className="h-full w-full object-contain transition duration-300 group-hover:scale-105"
         />
         {model.isPopular && (

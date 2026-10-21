@@ -9,6 +9,7 @@ import { trackContact, trackViewContent } from "../lib/metaPixel";
 import DragScroller from "../components/DragScroller";
 import SwipeCarousel from "../components/SwipeCarousel";
 import BottomBackBar from "../components/BottomBackBar";
+import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 
 export default function ModelDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -121,7 +122,14 @@ export default function ModelDetailPage() {
                   }`}
                   aria-label={`عرض الصورة ${i + 1}`}
                 >
-                  <img src={src} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain" />
+                  <img
+                    src={getThumbnailUrl(src)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => handleThumbError(e, src)}
+                    className="h-full w-full object-contain"
+                  />
                 </button>
               ))}
             </DragScroller>
