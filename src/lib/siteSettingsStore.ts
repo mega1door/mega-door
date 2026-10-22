@@ -9,9 +9,10 @@ import { supabase } from "./supabaseClient";
  */
 export interface SiteSettings {
   heroImageUrl: string | null;
+  heroImages: string[]; // URLs of the 8 hero images
 }
 
-const initial: SiteSettings = { heroImageUrl: null };
+const initial: SiteSettings = { heroImageUrl: null, heroImages: [] };
 
 type Listener = () => void;
 let listeners: Listener[] = [];
@@ -22,12 +23,12 @@ function emitChange() {
 }
 
 async function fetchSettings(): Promise<void> {
-  const { data, error } = await supabase.from("site_settings").select("hero_image_url").eq("id", true).single();
+  const { data, error } = await supabase.from("site_settings").select("hero_image_url,hero_images").eq("id", true).single();
   if (error) {
     console.error("تعذّرت قراءة إعدادات الموقع من قاعدة البيانات.", error);
     return;
   }
-  cache = { heroImageUrl: data?.hero_image_url ?? null };
+  cache = { heroImageUrl: data?.hero_image_url ?? null, heroImages: data?.hero_images ?? [] };
   emitChange();
 }
 void fetchSettings();
@@ -51,6 +52,15 @@ export async function updateHeroImage(url: string): Promise<void> {
   const { error } = await supabase
     .from("site_settings")
     .update({ hero_image_url: url, updated_at: new Date().toISOString() })
+    .eq("id", true);
+  if (error) throw error;
+  await fetchSettings();
+}
+
+export async function updateHeroImages(urls: string[]): Promise<void> {
+  const { error } = await supabase
+    .from("site_settings")
+    .update({ hero_images: urls, updated_at: new Date().toISOString() })
     .eq("id", true);
   if (error) throw error;
   await fetchSettings();

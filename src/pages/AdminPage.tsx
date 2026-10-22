@@ -10,6 +10,7 @@ import SpecTemplateManager from "../components/admin/SpecTemplateManager";
 import SiteSettingsManager from "../components/admin/SiteSettingsManager";
 import AdminLoginGate from "../components/admin/AdminLoginGate";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
+import HeroImageManager from "../components/admin/HeroImageManager";
 
 type View = { mode: "list" } | { mode: "add" } | { mode: "edit"; id: string };
 
@@ -84,6 +85,7 @@ export default function AdminPage() {
             <SiteSettingsManager />
             <CategoryManager models={models} />
             <SpecTemplateManager />
+            <HeroImageManager />
 
             <div className="mb-5 flex flex-wrap gap-3">
               <button

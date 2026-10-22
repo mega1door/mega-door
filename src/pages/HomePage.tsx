@@ -9,7 +9,7 @@ import { setPageSEO } from "../lib/seo";
 import PopularSlider from "../components/PopularSlider";
 import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
 import CircularCarousel from "../components/CircularCarousel";
-import { getThumbnailUrl } from "../lib/imageUrl";
+import { getThumbnailUrl, getFullImageUrl } from "../lib/imageUrl";
 
 const features: { icon: "headset" | "shield" | "drop" | "mute"; label: string }[] = [
   { icon: "headset", label: "خدمة ما بعد البيع" },
@@ -63,12 +63,19 @@ export default function HomePage() {
   const models = useModels();
   const popularModels = getPopularModels(models);
   const categories = useCategories();
-  const { heroImageUrl } = useSiteSettings();
+  const { heroImageUrl, heroImages } = useSiteSettings();
   const heroFallback = heroImageUrl || `${import.meta.env.BASE_URL}images/brand/hero-door.jpg`;
 
   // صور الكاروسيل: صورة رئيسية لكل موديل حقيقي أولاً، ثم صور إضافية من معارض
   // الموديلات حتى 10 كحد أقصى (كل الصور من بيانات الموقع، بدون صور تجريبية).
   const heroItems = useMemo(() => {
+    if (heroImages && heroImages.length > 0) {
+      return heroImages.map((url, idx) => ({
+        src: getFullImageUrl(url),
+        alt: `صورة هيرو ${idx + 1}`,
+      }));
+    }
+    // fallback to previous logic (models & fallback)
     const seen = new Set<string>();
     const items: { src: string; alt: string }[] = [];
     const add = (src: string | undefined, alt: string) => {
@@ -80,7 +87,7 @@ export default function HomePage() {
     models.forEach((m) => m.images.slice(1).forEach((src) => add(src, `باب ${m.name}`)));
     if (items.length === 0) add(heroFallback, "باب من ميكا للأبواب");
     return items;
-  }, [models, heroFallback]);
+  }, [models, heroFallback, heroImages]);
   const primaryCategoryPath = categories[0] ? `/${categories[0].id}` : "/interior";
 
   useEffect(() => {
