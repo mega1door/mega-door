@@ -60,13 +60,13 @@ export default function AdminPage() {
         <div className="mx-auto max-w-content px-4 py-8 sm:px-6">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">لوحة إدارة الموديلات</h1>
-              <p className="mt-2 text-sm sm:text-base font-medium leading-relaxed text-slate-300">
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">لوحة إدارة الموديلات</h1>
+              <p className="mt-2 text-sm sm:text-base font-semibold leading-relaxed text-slate-200">
                 إضافة وتعديل وحذف موديلات الأبواب، ورفع وترتيب الصور، وتحديد الأكثر طلباً.
               </p>
             </div>
             <div className="flex items-center gap-5">
-              <Link to="/" className="text-sm sm:text-base font-semibold text-slate-300 transition hover:text-brand">
+              <Link to="/" className="text-sm sm:text-base font-semibold text-slate-200 transition hover:text-brand">
                 الرجوع للموقع
               </Link>
               <button
@@ -123,12 +123,12 @@ export default function AdminPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-bold text-ink">{m.modelNumber}</td>
+                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-ink">{m.modelNumber}</td>
                       <td className="px-4 py-3 text-sm sm:text-base font-semibold text-ink">{m.name}</td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-medium text-slate-300">
+                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-slate-200">
                         {getCategoryById(categories, m.category)?.label ?? m.category}
                       </td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-medium text-slate-300">
+                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-slate-300">
                         {m.price != null ? m.price.toLocaleString("ar-IQ") : "—"}
                       </td>
                       <td className="px-4 py-3">
@@ -163,7 +163,7 @@ export default function AdminPage() {
                   ))}
                   {models.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-4 py-10 text-center text-sm sm:text-base font-medium text-slate-300">
+                      <td colSpan={7} className="px-4 py-10 text-center text-sm sm:text-base font-semibold text-slate-200">
                         لا توجد موديلات بعد.
                       </td>
                     </tr>

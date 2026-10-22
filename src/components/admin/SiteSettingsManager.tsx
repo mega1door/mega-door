@@ -28,7 +28,7 @@ export default function SiteSettingsManager() {
   return (
     <div className="mb-6 rounded-xl border border-white/20 bg-surface p-5 sm:p-6 shadow-lg">
       <h2 className="text-lg font-bold text-ink">إعدادات الموقع</h2>
-      <p className="mt-1.5 text-sm font-medium leading-relaxed text-slate-300">
+      <p className="mt-1.5 text-sm font-medium leading-relaxed text-slate-200">
         صورة الهيرو (أول صورة يشوفها الزائر بأعلى الصفحة الرئيسية).
       </p>
 

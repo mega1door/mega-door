@@ -106,7 +106,7 @@ export default function ModelForm({
   }
 
   const inputClass =
-    "w-full rounded-lg border border-white/20 bg-canvas px-3.5 py-2.5 text-sm sm:text-base font-medium text-ink placeholder:text-slate-500 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none transition";
+    "w-full rounded-lg border border-white/20 bg-canvas px-3.5 py-2.5 text-sm sm:text-base font-semibold text-ink placeholder:text-slate-500 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none transition";
   const labelClass = "mb-2 block text-sm font-semibold text-slate-200";
 
   return (
@@ -130,7 +130,7 @@ export default function ModelForm({
               </option>
             ))}
           </select>
-          <p className="mt-2 text-sm font-medium text-slate-300">
+          <p className="mt-2 text-sm font-semibold text-slate-300">
             تعبّي الحقول أدناه تلقائياً وتقدرين تعدّلينها بعدها بحرية - ما ترتبط بالقالب.
           </p>
         </div>

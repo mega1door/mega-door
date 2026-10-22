@@ -83,7 +83,7 @@ export default function SpecTemplateManager() {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-white/20 bg-canvas px-3.5 py-2.5 text-sm sm:text-base font-medium text-ink placeholder:text-slate-500 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none transition";
+    "w-full rounded-lg border border-white/20 bg-canvas px-3.5 py-2.5 text-sm sm:text-base font-semibold text-ink placeholder:text-slate-500 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none transition";
   const labelClass = "mb-2 block text-sm font-semibold text-slate-200";
 
   return (
@@ -91,7 +91,7 @@ export default function SpecTemplateManager() {
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-ink">قوالب المواصفات</h2>
-          <p className="mt-1.5 text-sm font-medium leading-relaxed text-slate-300">
+          <p className="mt-1.5 text-sm font-medium leading-relaxed text-slate-200">
             قالب تعبّيه مرة وحدة (النوع، أين يُستخدم، نقاط المواصفات) وتختاره بعدين عند
             إضافة أي موديل جديد يشترك بنفس المواصفات، فتتعبى الحقول تلقائياً وتقدر تعدّلها.
           </p>
@@ -113,7 +113,7 @@ export default function SpecTemplateManager() {
             <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div>
                 <p className="text-base font-bold text-ink">{t.name}</p>
-                <p className="mt-1 text-sm font-medium text-slate-300">
+                <p className="mt-1 text-sm font-medium text-slate-200">
                   {t.material || "بدون نوع محدد"}
                   {t.usage ? ` · ${t.usage}` : ""}
                   {t.specs && t.specs.length > 0 ? ` · ${t.specs.length} نقطة مواصفات` : ""}
