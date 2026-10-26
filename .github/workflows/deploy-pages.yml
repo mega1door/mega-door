@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # تشغيل مجدول كل ساعة (على رأس الساعة) لتحديث صفحات معاينة الموديلات تلقائياً من Supabase
+    - cron: '0 * * * *'
 
 permissions:
   contents: read

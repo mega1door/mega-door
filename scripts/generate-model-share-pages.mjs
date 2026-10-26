@@ -56,21 +56,42 @@ function replaceTag(html, pattern, replacement) {
   return html.replace(pattern, replacement);
 }
 
+async function fetchSupabaseDataWithRetry(maxAttempts = 3) {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const [{ data: models, error: modelsError }, { data: categories, error: categoriesError }] =
+        await Promise.all([
+          supabase.from("models").select("id,model_number,name,category,material,color,dimensions,images"),
+          supabase.from("categories").select("id,label"),
+        ]);
+
+      if (modelsError) throw modelsError;
+      if (categoriesError) throw categoriesError;
+
+      return { models: models ?? [], categories: categories ?? [] };
+    } catch (err) {
+      lastError = err;
+      console.warn(`[محاولة ${attempt}/${maxAttempts}] تعذّر الاتصال بـ Supabase: ${err.message || err}`);
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+      }
+    }
+  }
+
+  throw new Error(`تعذّر جلب البيانات من Supabase بعد ${maxAttempts} محاولات: ${lastError?.message || lastError}`);
+}
+
 async function main() {
   const template = await readFile(path.join(distDir, "index.html"), "utf-8");
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-  const [{ data: models, error: modelsError }, { data: categories, error: categoriesError }] = await Promise.all([
-    supabase.from("models").select("id,model_number,name,category,material,color,dimensions,images"),
-    supabase.from("categories").select("id,label"),
-  ]);
-  if (modelsError) throw modelsError;
-  if (categoriesError) throw categoriesError;
-
-  const categoryLabelById = Object.fromEntries((categories ?? []).map((c) => [c.id, c.label]));
+  const { models, categories } = await fetchSupabaseDataWithRetry(3);
+  const categoryLabelById = Object.fromEntries(categories.map((c) => [c.id, c.label]));
 
   let written = 0;
-  for (const model of models ?? []) {
+  for (const model of models) {
     const image = model.images?.[0];
     if (!image) continue; // ما نبني صفحة مشاركة بدون صورة أصلاً
 
@@ -117,8 +138,13 @@ async function main() {
     html = replaceTag(
       html,
       /<meta property="og:image" content="[^"]*" \/>/,
-      `<meta property="og:image" content="${escapeHtml(imageUrl)}" />` +
-        (categoryLabel ? `\n    <meta property="product:category" content="${escapeHtml(categoryLabel)}" />` : "")
+      `<meta property="og:image" content="${escapeHtml(imageUrl)}" />\n` +
+        `    <meta property="og:image:alt" content="${escapeHtml(title)}" />\n` +
+        (categoryLabel ? `    <meta property="product:category" content="${escapeHtml(categoryLabel)}" />\n` : "") +
+        `    <meta name="twitter:card" content="summary_large_image" />\n` +
+        `    <meta name="twitter:title" content="${escapeHtml(title)}" />\n` +
+        `    <meta name="twitter:description" content="${escapeHtml(description)}" />\n` +
+        `    <meta name="twitter:image" content="${escapeHtml(imageUrl)}" />`
     );
     html = replaceTag(
       html,
@@ -135,11 +161,18 @@ async function main() {
   console.log(`generate-model-share-pages: تم توليد ${written} صفحة مشاركة بـ dist/model/<id>/index.html`);
 }
 
-// هذا السكربت تحسين إضافي لمعاينات المشاركة (SEO) بس - ما لازم فشله يوقف نشر
-// الموقع كامل. إذا صار خطأ (مثلاً تعذّر الوصول لـ Supabase وقت البناء)، نسجّل
-// تحذير واضح ونكمل بنجاح (exit 0) بدل ما نكسر الـ deploy كامل بسببه.
+// معالجة الأخطاء وحماية النشر:
+// إذا حدث خطأ بالاتصال بـ Supabase أثناء تشغيل GitHub Actions (سواء المجدول كل ساعة أو اليدوي)،
+// يجب إيقاف البناء برمز خطأ (exit 1) حتى لا يقوم GitHub Pages بنشر نسخة فارغة تمسح صفحات المعاينة الحالية.
 main().catch((err) => {
-  console.error("⚠️ generate-model-share-pages فشل (صفحات المشاركة لكل موديل لن تُبنى هذي المرة، بس باقي الموقع سليم):");
-  console.error(err);
-  process.exitCode = 0;
+  console.error("❌ فشل سكربت generate-model-share-pages:", err.message || err);
+
+  const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+  if (isCI) {
+    console.error("🚨 تم إيقاف عملية النشر في GitHub Actions لحماية صفحات المعاينة الحالية من الحذف أو التلف.");
+    process.exit(1);
+  } else {
+    console.warn("⚠️ تم تخطي توليد صفحات المعاينة للبناء المحلي دون إيقاف التطوير.");
+    process.exitCode = 0;
+  }
 });
