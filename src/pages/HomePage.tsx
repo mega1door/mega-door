@@ -9,6 +9,8 @@ import { setPageSEO } from "../lib/seo";
 import PopularSlider from "../components/PopularSlider";
 import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
 import CircularCarousel from "../components/CircularCarousel";
+import MobileHero from "../components/MobileHero";
+import MobileCatalog from "../components/MobileCatalog";
 import { getThumbnailUrl, getFullImageUrl } from "../lib/imageUrl";
 
 const features: { icon: "headset" | "shield" | "drop" | "mute"; label: string }[] = [
@@ -90,6 +92,16 @@ export default function HomePage() {
   }, [models, heroFallback, heroImages]);
   const primaryCategoryPath = categories[0] ? `/${categories[0].id}` : "/interior";
 
+  // هيرو الموبايل: صور الهيرو المرفوعة من لوحة الإدارة أولاً (بنفس ترتيبها)، وإذا
+  // ما فيه صور مرفوعة بعد، الصورة الافتراضية الحالية للموقع.
+  const mobileHeroSlides = useMemo(
+    () =>
+      heroImages && heroImages.length > 0
+        ? heroImages.map((url, idx) => ({ src: getFullImageUrl(url), alt: `ميكا للأبواب - صورة ${idx + 1}` }))
+        : [{ src: heroFallback, alt: "باب من ميكا للأبواب داخل مدخل منزل" }],
+    [heroImages, heroFallback]
+  );
+
   useEffect(() => {
     setPageSEO({
       title: "ميكا للأبواب | أبواب داخلية وخارجية وقواطع في بغداد والعراق",
@@ -101,10 +113,17 @@ export default function HomePage() {
 
   return (
     <div>
+      {/* ===== الموبايل والتابلت (أقل من lg) - التصميم المعتمد ===== */}
+      <div className="lg:hidden">
+        <MobileHero slides={mobileHeroSlides} ctaTo={primaryCategoryPath} />
+        <MobileCatalog />
+      </div>
+
+      {/* ===== الديسكتوب (lg فأكبر) - بدون تغيير بانتظار اعتماد تصميمه ===== */}
       {/* Hero */}
       {/* bg-canvas انحذفت هنا عمداً (مو تغيير لون - نفس لون body بالضبط) حتى تظهر طبقة
           الخلفية الثابتة (AmbientBackground: خطوط هندسية متحركة) من خلفه. */}
-      <section className="overflow-hidden border-b border-border">
+      <section className="hidden overflow-hidden border-b border-border lg:block">
         <div className="mx-auto max-w-content px-4 py-10 sm:px-6 lg:py-20">
           <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
             {/*
@@ -170,7 +189,7 @@ export default function HomePage() {
       </section>
 
       {/* صف بطاقات الأقسام الكبيرة - بالهاتف فقط (بديل روابط الهيدر المحذوفة) */}
-      <div className="pt-8">
+      <div className="hidden pt-8 lg:block">
         <MobileCategoryShowcase />
       </div>
 

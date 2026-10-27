@@ -69,7 +69,8 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border px-4 py-3.5 text-center text-xs text-muted sm:px-6">
+      {/* pb-24 بالموبايل: حتى ما يغطي زر واتساب العائم سطر الحقوق بآخر الصفحة */}
+      <div className="border-t border-border px-4 pb-24 pt-3.5 text-center text-xs text-muted sm:px-6 lg:pb-3.5">
         © {new Date().getFullYear()} MEGA DOOR — جميع الحقوق محفوظة
       </div>
     </footer>

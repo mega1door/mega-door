@@ -6,7 +6,7 @@ import SwipeBackGesture from "./SwipeBackGesture";
 
 export default function Layout() {
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col bg-charcoal lg:bg-transparent">
       <SwipeBackGesture />
       <div className="relative z-10 flex min-h-screen flex-1 flex-col">
         <Header />
