@@ -107,11 +107,8 @@ export default function SwipeCarousel({
       const width = frame.clientWidth || 300;
       const currentIndex = indexRef.current;
 
-      // مقاومة خفيفة عند أول وآخر صورة
-      let moveX = dx;
-      if ((currentIndex === 0 && dx > 0) || (currentIndex === count - 1 && dx < 0)) {
-        moveX = dx * 0.28;
-      }
+      // بدون مقاومة عند الأطراف: المعرض دائري
+      const moveX = dx;
 
       track.style.transform = `translate3d(${-currentIndex * width + moveX}px, 0, 0)`;
     }
@@ -131,12 +128,12 @@ export default function SwipeCarousel({
 
       let targetIndex = currentIndex;
       if (isFastFlick || isFarEnough) {
-        if (dx < 0 && currentIndex < count - 1) {
+        if (dx < 0) {
           // سحب لليسار = التالية
-          targetIndex = currentIndex + 1;
-        } else if (dx > 0 && currentIndex > 0) {
+          targetIndex = (currentIndex + 1) % count; // بعد آخر صورة نرجع للأولى
+        } else if (dx > 0) {
           // سحب لليمين = السابقة
-          targetIndex = currentIndex - 1;
+          targetIndex = (currentIndex - 1 + count) % count; // قبل الأولى نروح للأخيرة
         }
       }
 
@@ -192,10 +189,7 @@ export default function SwipeCarousel({
         const dx = moveEvent.clientX - startX;
         const width = frame.clientWidth || 300;
         const currentIndex = indexRef.current;
-        let moveX = dx;
-        if ((currentIndex === 0 && dx > 0) || (currentIndex === count - 1 && dx < 0)) {
-          moveX = dx * 0.28;
-        }
+        const moveX = dx;
         track.style.transform = `translate3d(${-currentIndex * width + moveX}px, 0, 0)`;
       }
 
@@ -216,10 +210,10 @@ export default function SwipeCarousel({
 
         let targetIndex = currentIndex;
         if (isFastFlick || isFarEnough) {
-          if (dx < 0 && currentIndex < count - 1) {
-            targetIndex = currentIndex + 1;
-          } else if (dx > 0 && currentIndex > 0) {
-            targetIndex = currentIndex - 1;
+          if (dx < 0) {
+            targetIndex = (currentIndex + 1) % count; // بعد آخر صورة نرجع للأولى
+          } else if (dx > 0) {
+            targetIndex = (currentIndex - 1 + count) % count; // قبل الأولى نروح للأخيرة
           }
         }
 
@@ -247,8 +241,9 @@ export default function SwipeCarousel({
       aria-roledescription="carousel"
       aria-label="معرض صور الموديل"
       onKeyDown={(e) => {
-        if (e.key === "ArrowLeft" && index < count - 1) onIndexChange(index + 1);
-        if (e.key === "ArrowRight" && index > 0) onIndexChange(index - 1);
+        if (count < 2) return;
+        if (e.key === "ArrowLeft") onIndexChange((index + 1) % count);
+        if (e.key === "ArrowRight") onIndexChange((index - 1 + count) % count);
       }}
       className={`relative select-none overflow-hidden touch-pan-y cursor-grab ${className}`.trim()}
     >
@@ -269,6 +264,32 @@ export default function SwipeCarousel({
           />
         ))}
       </div>
+
+      {/* أسهم التنقل (موبايل وديسكتوب) - دائرية: بعد الأخيرة الأولى، وقبل الأولى الأخيرة */}
+      {count > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label="الصورة السابقة"
+            onClick={() => onIndexChange((index - 1 + count) % count)}
+            className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-black/75"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.5 6l6 6-6 6" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label="الصورة التالية"
+            onClick={() => onIndexChange((index + 1) % count)}
+            className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-black/75"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 6l-6 6 6 6" />
+            </svg>
+          </button>
+        </>
+      )}
 
       {/* مؤشر رقم الصورة الحالي */}
       {count > 1 && (

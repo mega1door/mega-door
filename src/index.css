@@ -40,17 +40,34 @@
 }
 
 /*
- * لوحة الإدارة: خط Tajawal بأوزان خفيفة (400 نصوص، 500 أزرار وتسميات، 700 عناوين رئيسية)
- * وألوان ثانوية أهدأ. مقصورة على .admin-ui فما تأثر على الموقع العام.
+ * لوحة الإدارة - تصميم واحد متجاوب (نفس المكوّنات بالموبايل والديسكتوب، يتغيّر التوزيع بس).
+ * Tajawal: 500 للنصوص، 600 للأزرار والقائمة والتسميات (Tajawal ما بيه 600، فيظهر بأقرب
+ * وزن متوفر = 700)، 700 للعناوين. ما اكو 300 أو 400 داخل اللوحة.
+ * النص الأساسي 16px، والثانوي 14px كحد أدنى. مقصورة على .admin-ui فما تأثر على الموقع العام.
  */
 @layer components {
   .admin-ui {
+    --adm-bg: #0b0f17;
+    --adm-s1: #121826;
+    --adm-s2: #182031;
+    --adm-ln: #2a3448;
+    --adm-tx: #f1f4f8;
+    --adm-t2: #d0d6e0;
+    --adm-t3: #b4bccb;
+    --adm-br: #1489ff;
+    --adm-brs: #13294a;
     font-family: theme("fontFamily.body");
-    font-weight: 400;
-    font-size: 15px;
-    line-height: 1.6;
-    color: #e8ecf3;
-    background: #0b0f17;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--adm-tx);
+    background: var(--adm-bg);
+  }
+  .admin-ui *,
+  .admin-ui .font-light,
+  .admin-ui .font-normal,
+  .admin-ui .font-medium {
+    font-weight: 500;
   }
   .admin-ui .font-display,
   .admin-ui h1,
@@ -62,28 +79,45 @@
   .admin-ui h2 {
     font-weight: 700;
     font-size: 22px;
+    line-height: 1.4;
   }
   .admin-ui h3 {
-    font-weight: 500;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .admin-ui .font-semibold,
+  .admin-ui .font-bold,
+  .admin-ui .font-extrabold,
+  .admin-ui button,
+  .admin-ui label,
+  .admin-ui th {
+    font-weight: 600;
+  }
+  .admin-ui .text-xs,
+  .admin-ui .text-sm {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .admin-ui .text-base {
     font-size: 16px;
   }
-  .admin-ui .font-bold,
-  .admin-ui .font-semibold,
-  .admin-ui .font-extrabold,
-  .admin-ui label,
-  .admin-ui button {
-    font-weight: 500;
+  .admin-ui .text-lg {
+    font-size: 18px;
   }
-  .admin-ui .font-medium {
-    font-weight: 400;
+  .admin-ui .text-ink {
+    color: var(--adm-tx);
   }
   .admin-ui .text-slate-200,
-  .admin-ui .text-slate-300 {
-    color: #a9b2c3;
+  .admin-ui .text-slate-300,
+  .admin-ui .text-muted {
+    color: var(--adm-t2);
   }
   .admin-ui .text-slate-400,
   .admin-ui .text-slate-500 {
-    color: #7e889b;
+    color: var(--adm-t3);
+  }
+  .admin-ui .text-red-300 {
+    color: #ff9b9b;
   }
   .admin-ui input,
   .admin-ui select,
@@ -91,7 +125,11 @@
   .admin-ui input.font-semibold,
   .admin-ui select.font-semibold,
   .admin-ui textarea.font-semibold {
-    font-weight: 400;
+    font-weight: 500;
+    font-size: 16px;
+  }
+  .admin-ui ::placeholder {
+    color: #8f99ab;
   }
   .admin-ui .shadow-lg,
   .admin-ui .shadow-xl,
@@ -99,23 +137,53 @@
     box-shadow: none;
   }
   .admin-ui .bg-surface {
-    background-color: #121826;
+    background-color: var(--adm-s1);
   }
   .admin-ui .border-white\/20,
   .admin-ui .border-white\/25 {
-    border-color: #232c3d;
+    border-color: var(--adm-ln);
+  }
+
+  .admin-brand {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .admin-nav-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .admin-nav-item {
+    display: flex;
+    min-height: 46px;
+    width: 100%;
+    align-items: center;
+    border-radius: 8px;
+    padding: 0 12px;
+    text-align: right;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--adm-t2);
+    transition: background 0.2s, color 0.2s;
+  }
+  .admin-nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--adm-tx);
+  }
+  .admin-nav-item.is-active {
+    background: var(--adm-brs);
+    color: #fff;
   }
 
   .admin-card {
-    border: 1px solid #232c3d;
-    background: #121826;
+    border: 1px solid var(--adm-ln);
+    background: var(--adm-s1);
     border-radius: 12px;
     padding: 16px;
   }
   .admin-h3 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 17px;
+    font-weight: 700;
   }
   .admin-field {
     display: block;
@@ -123,19 +191,18 @@
   .admin-label {
     display: block;
     margin-bottom: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #a9b2c3;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--adm-t2);
   }
   .admin-input {
     width: 100%;
-    height: 42px;
+    height: 44px;
     border-radius: 8px;
-    border: 1px solid #232c3d;
-    background: #0b0f17;
+    border: 1px solid var(--adm-ln);
+    background: var(--adm-bg);
     padding: 0 12px;
-    font-size: 15px;
-    color: #e8ecf3;
+    color: var(--adm-tx);
   }
   .admin-input:focus {
     outline: none;
@@ -144,8 +211,8 @@
   }
   .admin-hint {
     display: block;
-    font-size: 13px;
-    color: #7e889b;
+    font-size: 14px;
+    color: var(--adm-t3);
   }
   .admin-drop {
     display: flex;
@@ -153,11 +220,11 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    border: 1.5px dashed #34405a;
+    border: 1.5px dashed #3a4762;
     border-radius: 10px;
     padding: 20px 16px;
-    color: #a9b2c3;
-    font-size: 15px;
+    color: var(--adm-t2);
+    font-size: 16px;
     transition: border-color 0.2s, background 0.2s;
   }
   .admin-drop:hover {
@@ -166,17 +233,17 @@
   }
   .admin-btn {
     display: inline-flex;
-    height: 40px;
+    height: 44px;
     align-items: center;
     justify-content: center;
     gap: 6px;
     border-radius: 8px;
-    border: 1px solid #232c3d;
-    background: #182031;
+    border: 1px solid var(--adm-ln);
+    background: var(--adm-s2);
     padding: 0 16px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #e8ecf3;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--adm-tx);
     white-space: nowrap;
     transition: border-color 0.2s, background 0.2s;
   }
@@ -186,46 +253,120 @@
   .admin-btn:disabled {
     opacity: 0.55;
   }
+  .admin-btn:focus-visible,
+  .admin-nav-item:focus-visible {
+    outline: 2px solid #3d9bff;
+    outline-offset: 1px;
+  }
   .admin-btn-primary {
-    border-color: #1489ff;
-    background: #1489ff;
+    border-color: var(--adm-br);
+    background: var(--adm-br);
     color: #fff;
   }
   .admin-btn-danger {
     background: transparent;
-    border-color: #4a2a30;
-    color: #f08080;
+    border-color: #6a3138;
+    color: #ff9b9b;
   }
   .admin-btn-sm {
-    height: 34px;
+    height: 38px;
     padding: 0 12px;
-    font-size: 13px;
+    font-size: 14px;
   }
   .admin-bar {
     position: sticky;
     bottom: 0;
     display: flex;
     gap: 10px;
-    border-top: 1px solid #232c3d;
-    background: #121826;
+    border-top: 1px solid var(--adm-ln);
+    background: var(--adm-s1);
     margin: 0 -16px;
     padding: 12px 16px;
   }
   .admin-alert {
     border-radius: 8px;
-    border: 1px solid rgba(240, 128, 128, 0.4);
-    background: rgba(240, 128, 128, 0.08);
+    border: 1px solid rgba(255, 155, 155, 0.45);
+    background: rgba(255, 155, 155, 0.08);
     padding: 10px 14px;
-    font-size: 14px;
-    color: #f5a3a3;
+    font-size: 15px;
+    color: #ffb3b3;
   }
   .admin-ok {
     border-radius: 8px;
-    border: 1px solid rgba(61, 155, 255, 0.35);
+    border: 1px solid rgba(61, 155, 255, 0.4);
     background: rgba(61, 155, 255, 0.08);
     padding: 10px 14px;
+    font-size: 15px;
+    color: #b8dbff;
+  }
+  .admin-pill {
+    display: inline-block;
+    border-radius: 999px;
+    background: var(--adm-brs);
+    padding: 2px 10px;
     font-size: 14px;
-    color: #9ccbff;
+    color: #b8dbff;
+  }
+
+  /* صف الموديل: بطاقة مرتبة بالشاشات الصغيرة، وصف جدول من lg فأكبر - نفس العناصر */
+  .admin-mrow {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 4px 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border-top: 1px solid var(--adm-ln);
+  }
+  .admin-mrow:first-child {
+    border-top: 0;
+  }
+  .admin-mthumb {
+    grid-row: span 2;
+    height: 64px;
+    width: 52px;
+    overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid var(--adm-ln);
+    background: var(--adm-bg);
+  }
+  .admin-mcode {
+    font-weight: 700;
+  }
+  .admin-mname {
+    margin-inline-start: 8px;
+  }
+  .admin-mmeta {
+    display: block;
+    font-size: 14px;
+    color: var(--adm-t2);
+  }
+  .admin-mactions {
+    grid-column: 2;
+    display: flex;
+    gap: 8px;
+  }
+  @media (min-width: 1024px) {
+    .admin-mrow {
+      grid-template-columns: 52px 110px minmax(0, 1.4fr) minmax(0, 1fr) 90px 100px auto;
+      gap: 12px;
+    }
+    .admin-mthumb {
+      grid-row: auto;
+    }
+    .admin-mname {
+      margin: 0;
+    }
+    .admin-mactions {
+      grid-column: auto;
+      justify-content: flex-end;
+    }
+    .admin-mhead {
+      background: var(--adm-s2);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--adm-t2);
+      padding-block: 10px;
+    }
   }
 }
 

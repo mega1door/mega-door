@@ -13,6 +13,7 @@ import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 // HeroImageManager (نظام الثماني صور القديم) باقٍ بالكود بدون عرض: الهيرو صار صورة وحدة
 // تُدار من SiteSettingsManager.
 import BulkModelForm from "../components/admin/BulkModelForm";
+import HeroModelsManager from "../components/admin/HeroModelsManager";
 
 type Tab = "models" | "cats" | "specs" | "hero" | "settings";
 const TABS: { id: Tab; label: string }[] = [
@@ -34,6 +35,7 @@ export default function AdminPage() {
   const [query, setQuery] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [notice, setNotice] = useState<string | null>(null);
+  const [navOpen, setNavOpen] = useState(false);
 
   const q = query.trim().toLowerCase();
   const visibleModels = models.filter(
@@ -43,10 +45,22 @@ export default function AdminPage() {
   );
 
   function openTab(t: Tab) {
+    setNavOpen(false);
     setTab(t);
     setView({ mode: "list" });
     setNotice(null);
   }
+
+  // وزن 500 من Tajawal (غير محمّل بالموقع العام) - يُحمَّل داخل لوحة الإدارة فقط
+  useEffect(() => {
+    const id = "admin-font-500";
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700&display=swap";
+    document.head.appendChild(link);
+  }, []);
 
   useEffect(() => {
     setPageSEO({
@@ -95,65 +109,69 @@ export default function AdminPage() {
   return (
     <AdminLoginGate>
       <div className="admin-ui min-h-screen lg:flex">
-        {/* ديسكتوب: قائمة جانبية يمين */}
-        <aside className="hidden w-[232px] shrink-0 flex-col gap-1 border-l border-[#232c3d] bg-[#121826] px-3.5 py-5 lg:flex">
-          <div className="px-2.5 pb-4">
-            <p className="text-[17px] font-bold">ميكا</p>
-            <p className="text-[13px] text-[#7e889b]">لوحة الإدارة</p>
+        {/* شريط علوي للشاشات الصغيرة فقط: زر القائمة + اسم القسم الحالي */}
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[#232c3d] bg-[#121826] px-4 py-2.5 lg:hidden">
+          <button
+            type="button"
+            className="admin-btn admin-btn-sm"
+            onClick={() => setNavOpen(true)}
+            aria-expanded={navOpen}
+            aria-controls="admin-nav"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+            القائمة
+          </button>
+          <p className="admin-nav-title">{TABS.find((t) => t.id === tab)!.label}</p>
+        </div>
+
+        {navOpen && (
+          <button
+            type="button"
+            aria-label="إغلاق القائمة"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setNavOpen(false)}
+          />
+        )}
+
+        {/* نفس القائمة بالشاشتين: ثابتة يمين بالديسكتوب، وتنفتح من اليمين بالموبايل */}
+        <aside
+          id="admin-nav"
+          className={`fixed inset-y-0 right-0 z-50 flex w-[264px] flex-col gap-1 border-l border-[#232c3d] bg-[#121826] px-3.5 py-5 transition-transform duration-200 lg:static lg:z-auto lg:w-[240px] lg:translate-x-0 ${
+            navOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex items-start justify-between px-2.5 pb-4">
+            <div>
+              <p className="admin-brand">ميكا</p>
+              <p className="admin-hint">لوحة الإدارة</p>
+            </div>
+            <button type="button" className="admin-btn admin-btn-sm lg:hidden" onClick={() => setNavOpen(false)} aria-label="إغلاق القائمة">
+              ✕
+            </button>
           </div>
           {TABS.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => openTab(t.id)}
-              className={`flex h-[42px] items-center rounded-lg px-3 text-right text-[15px] transition-colors ${
-                tab === t.id ? "bg-[#13294a] text-white" : "text-[#a9b2c3] hover:bg-white/5"
-              }`}
+              className={`admin-nav-item ${tab === t.id ? "is-active" : ""}`}
+              aria-current={tab === t.id ? "page" : undefined}
             >
               {t.label}
             </button>
           ))}
           <div className="flex-1" />
-          <Link to="/" className="flex h-[42px] items-center rounded-lg px-3 text-[15px] text-[#a9b2c3] hover:bg-white/5">
+          <Link to="/" className="admin-nav-item">
             عرض الموقع
           </Link>
-          <button
-            type="button"
-            onClick={() => supabase.auth.signOut()}
-            className="flex h-[42px] items-center rounded-lg px-3 text-right text-[15px] text-[#a9b2c3] hover:bg-white/5"
-          >
+          <button type="button" onClick={() => supabase.auth.signOut()} className="admin-nav-item">
             تسجيل الخروج
           </button>
         </aside>
 
         <div className="min-w-0 flex-1">
-          {/* موبايل: عنوان + تبويبات أفقية */}
-          <div className="border-b border-[#232c3d] lg:hidden">
-            <div className="flex items-center justify-between px-4 pt-3">
-              <p className="text-[13px] text-[#7e889b]">ميكا — لوحة الإدارة</p>
-              <div className="flex gap-3 text-[13px] text-[#a9b2c3]">
-                <Link to="/">الموقع</Link>
-                <button type="button" onClick={() => supabase.auth.signOut()}>
-                  خروج
-                </button>
-              </div>
-            </div>
-            <div className="scrollbar-hide flex gap-1.5 overflow-x-auto px-4 py-2.5">
-              {TABS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => openTab(t.id)}
-                  className={`h-9 shrink-0 rounded-full border px-3.5 text-[14px] ${
-                    tab === t.id ? "border-[#3d9bff] bg-[#13294a] text-white" : "border-[#232c3d] text-[#a9b2c3]"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="mx-auto max-w-[1100px] px-4 py-5 lg:px-7 lg:py-6">
             {/* العنوان بتبويب الموديلات بس - باقي التبويبات بيها عنوانها داخل البطاقة */}
             {tab === "models" && (
@@ -176,10 +194,15 @@ export default function AdminPage() {
 
             {tab === "cats" && <CategoryManager models={models} />}
             {tab === "specs" && <SpecTemplateManager />}
-            {tab === "hero" && <SiteSettingsManager />}
+            {tab === "hero" && (
+              <>
+                <HeroModelsManager />
+                <SiteSettingsManager />
+              </>
+            )}
             {tab === "settings" && (
               <div className="admin-card">
-                <p className="text-[#a9b2c3]">ماكو إعدادات إضافية حالياً.</p>
+                <p>ماكو إعدادات إضافية حالياً.</p>
                 <p className="admin-hint mt-1">البريد الإلكتروني ينضاف هنا بعد الموافقة على إضافة حقله بقاعدة البيانات.</p>
               </div>
             )}
@@ -202,7 +225,7 @@ export default function AdminPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <select className="admin-input w-full sm:w-[220px]" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
+              <select className="admin-input w-full sm:w-[240px]" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
                 <option value="all">كل الأقسام</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -211,81 +234,61 @@ export default function AdminPage() {
                 ))}
               </select>
             </div>
-            <div className="overflow-x-auto rounded-xl border border-[#232c3d] bg-[#121826]">
-              <table className="w-full min-w-[640px] text-right text-sm">
-                <thead className="border-b border-[#232c3d] bg-[#182031] text-[13px] text-[#7e889b]">
-                  <tr>
-                    <th className="px-4 py-3 font-bold">الصورة</th>
-                    <th className="px-4 py-3 font-bold">كود الموديل</th>
-                    <th className="px-4 py-3 font-bold">الاسم</th>
-                    <th className="px-4 py-3 font-bold">القسم</th>
-                    <th className="px-4 py-3 font-bold">السعر</th>
-                    <th className="px-4 py-3 font-bold">الأكثر طلباً</th>
-                    <th className="px-4 py-3 font-bold" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleModels.map((m) => (
-                    <tr key={m.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
-                      <td className="px-4 py-3">
-                        <div className="h-12 w-10 overflow-hidden rounded-md border border-white/20 bg-canvas">
-                          {m.images[0] && (
-                            <img
-                              src={getThumbnailUrl(m.images[0])}
-                              alt=""
-                              onError={(e) => handleThumbError(e, m.images[0])}
-                              className="h-full w-full object-contain"
-                            />
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-ink">{m.modelNumber}</td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-ink">{m.name}</td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-slate-200">
-                        {getCategoryById(categories, m.category)?.label ?? m.category}
-                      </td>
-                      <td className="px-4 py-3 text-sm sm:text-base font-semibold text-slate-300">
-                        {m.price != null ? m.price.toLocaleString("ar-IQ") : "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {m.isPopular ? (
-                          <span className="rounded-full border border-brand/30 bg-brand/20 px-2.5 py-1 text-xs sm:text-sm font-bold text-brand-dark">
-                            نعم
-                          </span>
-                        ) : (
-                          <span className="text-sm font-medium text-slate-500">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-end gap-2.5">
-                          <button
-                            type="button"
-                            onClick={() => setView({ mode: "edit", id: m.id })}
-                            className="rounded-full border border-white/25 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-ink transition hover:border-brand hover:text-brand hover:bg-brand/10"
-                          >
-                            تعديل
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(m.id, m.name)}
-                            disabled={deletingId === m.id}
-                            className="rounded-full border border-red-500/40 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-red-300 transition hover:border-red-400 hover:bg-red-500/10 disabled:opacity-50"
-                          >
-                            حذف
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {visibleModels.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="px-4 py-10 text-center text-sm sm:text-base font-semibold text-slate-200">
-                        {models.length === 0 ? "لا توجد موديلات بعد." : "ماكو نتائج."}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+            {/* قائمة واحدة متجاوبة: صف جدول بالديسكتوب، وبطاقة مرتبة بالموبايل - نفس العناصر */}
+            <div className="overflow-hidden rounded-xl border border-[#232c3d] bg-[#121826]">
+              <div className="admin-mrow admin-mhead hidden lg:grid" aria-hidden="true">
+                <span>الصورة</span>
+                <span>الكود</span>
+                <span>الاسم</span>
+                <span>القسم</span>
+                <span>السعر</span>
+                <span>الأكثر طلباً</span>
+                <span />
+              </div>
+              {visibleModels.map((m) => (
+                <div key={m.id} className="admin-mrow">
+                  <div className="admin-mthumb">
+                    {m.images[0] && (
+                      <img
+                        src={getThumbnailUrl(m.images[0])}
+                        alt=""
+                        onError={(e) => handleThumbError(e, m.images[0])}
+                        className="h-full w-full object-contain"
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0 lg:contents">
+                    <span className="admin-mcode" dir="ltr">
+                      {m.modelNumber}
+                    </span>
+                    <span className="admin-mname">{m.name}</span>
+                    <span className="admin-mmeta">
+                      {getCategoryById(categories, m.category)?.label ?? m.category}
+                      {m.color ? <span className="lg:hidden"> · {m.color}</span> : null}
+                    </span>
+                    <span className="admin-mmeta hidden lg:block">{m.price != null ? m.price.toLocaleString("ar-IQ") : "—"}</span>
+                    <span className="hidden lg:block">
+                      {m.isPopular ? <span className="admin-pill">نعم</span> : <span className="admin-mmeta">—</span>}
+                    </span>
+                  </div>
+                  <div className="admin-mactions">
+                    <button type="button" onClick={() => setView({ mode: "edit", id: m.id })} className="admin-btn admin-btn-sm">
+                      تعديل
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(m.id, m.name)}
+                      disabled={deletingId === m.id}
+                      className="admin-btn admin-btn-sm admin-btn-danger"
+                    >
+                      حذف
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {visibleModels.length === 0 && (
+                <p className="px-4 py-10 text-center">{models.length === 0 ? "لا توجد موديلات بعد." : "ماكو نتائج."}</p>
+              )}
             </div>
           </>
         )}

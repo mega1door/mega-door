@@ -5,12 +5,15 @@ import { getPopularModels } from "../data/models";
 import { useCategories } from "../lib/categoriesStore";
 import { useSiteSettings } from "../lib/siteSettingsStore";
 import { setPageSEO } from "../lib/seo";
-import PopularSlider from "../components/PopularSlider";
-import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
 import CircularCarousel from "../components/CircularCarousel";
 import MobileHero from "../components/MobileHero";
+import PopularSlider from "../components/PopularSlider";
 import MobileCatalog from "../components/MobileCatalog";
+import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
 import { getThumbnailUrl, getFullImageUrl } from "../lib/imageUrl";
+
+/** الكاروسيل الدائري القديم بالهيرو - موقوف حالياً، غيّريه لـ true لإرجاعه بالديسكتوب. */
+const SHOW_LEGACY_CAROUSEL_HERO = false;
 
 export default function HomePage() {
   const models = useModels();
@@ -45,12 +48,39 @@ export default function HomePage() {
 
   // هيرو الموبايل: صور الهيرو المرفوعة من لوحة الإدارة أولاً (بنفس ترتيبها)، وإذا
   // ما فيه صور مرفوعة بعد، الصورة الافتراضية الحالية للموقع.
-  const mobileHeroSlides = useMemo(
+  // الهيرو (كل الشاشات): صورة وحدة من إعدادات الموقع (hero_image_url)، وإذا ما مرفوعة
+  // الصورة الافتراضية. نظام الثماني صور (hero_images) والكاروسيل الدائري باقيين بالكود بدون عرض.
+  // موديلات الهيرو: يختارها الأدمن من تبويب «الهيرو»، وتُحفظ بنفس حقل site_settings.hero_images
+  // (روابط صورها الموجودة أصلاً بـ Supabase). كل رابط يتطابق مع موديله، والمحذوف يُتجاهل.
+  const heroModels = useMemo(() => {
+    const seen = new Set<string>();
+    const out: typeof models = [];
+    for (const url of heroImages ?? []) {
+      const full = getFullImageUrl(url);
+      const m = models.find((x) => x.images.some((img) => getFullImageUrl(img) === full));
+      if (m && !seen.has(m.id)) {
+        seen.add(m.id);
+        out.push({ ...m, images: [full, ...m.images.filter((img) => getFullImageUrl(img) !== full)] });
+      }
+    }
+    return out;
+  }, [heroImages, models]);
+
+  // شرائح «وصل حديثاً»: بنفس ترتيب الأدمن (مو حسب تاريخ الإضافة)، كل صورة تفتح صفحة موديلها
+  const heroModelSlides = useMemo(
     () =>
-      heroImages && heroImages.length > 0
-        ? heroImages.map((url, idx) => ({ src: getFullImageUrl(url), alt: `ميكا للأبواب - صورة ${idx + 1}` }))
-        : [{ src: heroFallback, alt: "باب من ميكا للأبواب داخل مدخل منزل" }],
-    [heroImages, heroFallback]
+      heroModels.map((m) => ({
+        src: m.images[0],
+        alt: `باب ${m.name} - موديل ${m.modelNumber}`,
+        href: `/model/${m.id}`,
+        fit: "contain" as const,
+      })),
+    [heroModels]
+  );
+
+  const heroSlides = useMemo(
+    () => [{ src: heroFallback, alt: "باب من ميكا للأبواب داخل مدخل منزل" }],
+    [heroFallback]
   );
 
   useEffect(() => {
@@ -64,16 +94,42 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* ===== الموبايل والتابلت (أقل من lg) - التصميم المعتمد ===== */}
+      {/* الترتيب (موبايل وديسكتوب): الهيرو «وصل حديثاً» ← الأكثر طلباً ← أقسام الموديلات */}
+      <MobileHero
+        slides={heroModels.length > 0 ? heroModelSlides : heroSlides}
+        ctaTo={primaryCategoryPath}
+        ctaLabel={heroModels.length > 0 ? "وصل حديثاً" : "اكتشف مجموعتنا"}
+      />
+
+      {/* الأكثر طلباً هذا الشهر - نفس التصميم القديم، صار مباشرة تحت الهيرو. القسم كامل
+          يختفي إذا ما فيه أي موديل معلّم "الأكثر طلباً" من لوحة الإدارة. */}
+      {popularModels.length > 0 && (
+        <section className="pb-4 pt-12 lg:pb-6 lg:pt-20">
+          <div className="mx-auto max-w-content px-4 sm:px-6">
+            <div className="mb-10 text-right">
+              <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold text-ink">الأكثر طلباً هذا الشهر</h2>
+              <p className="mt-2.5 text-base text-muted">تصاميم مختارة لبيوت عصرية</p>
+            </div>
+            <PopularSlider models={popularModels} />
+          </div>
+        </section>
+      )}
+
+      {/* أقسام الموديلات - نفس التصميم القديم: أزرار الأقسام وموديلاتها بالموبايل،
+          وبطاقات الأقسام بالديسكتوب */}
       <div className="lg:hidden">
-        <MobileHero slides={mobileHeroSlides} ctaTo={primaryCategoryPath} />
         <MobileCatalog />
+      </div>
+      <div className="hidden pt-8 lg:block">
+        <MobileCategoryShowcase />
       </div>
 
       {/* ===== الديسكتوب (lg فأكبر) - بدون تغيير بانتظار اعتماد تصميمه ===== */}
       {/* Hero */}
       {/* bg-canvas انحذفت هنا عمداً (مو تغيير لون - نفس لون body بالضبط) حتى تظهر طبقة
           الخلفية الثابتة (AmbientBackground: خطوط هندسية متحركة) من خلفه. */}
+      {/* الهيرو القديم بالكاروسيل الدائري: موقوف (ما ينعرض ولا يشتغل) - الكود محفوظ للاستخدام لاحقاً */}
+      {SHOW_LEGACY_CAROUSEL_HERO && (
       <section className="hidden overflow-hidden border-b border-border lg:block">
         <div className="mx-auto max-w-content px-4 py-10 sm:px-6 lg:py-20">
           <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
@@ -138,24 +194,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* صف بطاقات الأقسام الكبيرة - بالهاتف فقط (بديل روابط الهيدر المحذوفة) */}
-      <div className="hidden pt-8 lg:block">
-        <MobileCategoryShowcase />
-      </div>
-
-      {/* الأكثر طلباً هذا الشهر - القسم كامل يختفي إذا ما فيه أي موديل معلّم
-          "الأكثر طلباً" حالياً من لوحة الإدارة (بدل عنوان بلا بطاقات تحته). */}
-      {popularModels.length > 0 && (
-        <section className="pb-4 pt-12 lg:pb-6 lg:pt-20">
-          <div className="mx-auto max-w-content px-4 sm:px-6">
-            <div className="mb-10 text-right">
-              <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold text-ink">الأكثر طلباً هذا الشهر</h2>
-              <p className="mt-2.5 text-base text-muted">تصاميم مختارة لبيوت عصرية</p>
-            </div>
-            <PopularSlider models={popularModels} />
-          </div>
-        </section>
       )}
     </div>
   );
