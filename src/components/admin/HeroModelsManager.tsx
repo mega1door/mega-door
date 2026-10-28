@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useModels } from "../../lib/modelsStore";
 import { useSiteSettings, updateHeroImages } from "../../lib/siteSettingsStore";
 import { getFullImageUrl, getThumbnailUrl, handleThumbError } from "../../lib/imageUrl";
+import { splitHeroImages } from "../../lib/heroImages";
 
 /**
  * «وصل حديثاً» بالهيرو: اختيار موديلات الهيرو وترتيبها (يظهر بنفس ترتيب الأدمن).
@@ -21,7 +22,7 @@ export default function HeroModelsManager() {
   // الحالة المحفوظة: كل رابط → موديله (المحذوف يُتجاهل)
   const savedIds = useMemo(() => {
     const out: string[] = [];
-    for (const url of heroImages ?? []) {
+    for (const url of splitHeroImages(heroImages).modelUrls) {
       const full = getFullImageUrl(url);
       const m = models.find((x) => x.images.some((img) => getFullImageUrl(img) === full));
       if (m && !out.includes(m.id)) out.push(m.id);
@@ -59,7 +60,8 @@ export default function HeroModelsManager() {
     setMsg(null);
     try {
       const urls = chosen.map((m) => m.images[0]);
-      await updateHeroImages(urls);
+      // نحافظ على صور الهيرو الاحتياطية المحفوظة بنفس الحقل
+      await updateHeroImages([...urls, ...splitHeroImages(heroImages).fallbackUrls]);
       setDirty(false);
       setMsg({ ok: true, text: "انحفظ ترتيب الهيرو." });
     } catch (err) {
@@ -75,7 +77,7 @@ export default function HeroModelsManager() {
       <div>
         <h2>وصل حديثاً (صور الهيرو)</h2>
         <p className="admin-hint mt-1">
-          اختاري الموديلات اللي تظهر بأعلى الصفحة الرئيسية ورتّبيها. كل صورة تفتح صفحة موديلها. إذا ما اخترتي شي، تظهر صورة الهيرو الثابتة.
+          اختاري الموديلات اللي تظهر بأعلى الصفحة الرئيسية ورتّبيها. كل صورة تفتح صفحة موديلها. إذا ما اخترتي شي، تظهر صور الهيرو الاحتياطية.
         </p>
       </div>
 

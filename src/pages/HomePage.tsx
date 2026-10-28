@@ -11,6 +11,7 @@ import PopularSlider from "../components/PopularSlider";
 import MobileCatalog from "../components/MobileCatalog";
 import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
 import { getThumbnailUrl, getFullImageUrl } from "../lib/imageUrl";
+import { splitHeroImages } from "../lib/heroImages";
 
 /** الكاروسيل الدائري القديم بالهيرو - موقوف حالياً، غيّريه لـ true لإرجاعه بالديسكتوب. */
 const SHOW_LEGACY_CAROUSEL_HERO = false;
@@ -55,7 +56,7 @@ export default function HomePage() {
   const heroModels = useMemo(() => {
     const seen = new Set<string>();
     const out: typeof models = [];
-    for (const url of heroImages ?? []) {
+    for (const url of splitHeroImages(heroImages).modelUrls) {
       const full = getFullImageUrl(url);
       const m = models.find((x) => x.images.some((img) => getFullImageUrl(img) === full));
       if (m && !seen.has(m.id)) {
@@ -78,6 +79,16 @@ export default function HomePage() {
     [heroModels]
   );
 
+  // صور الهيرو الاحتياطية (حتى 3) - تظهر إذا ما اكو موديلات مختارة
+  const fallbackSlides = useMemo(
+    () =>
+      splitHeroImages(heroImages).fallbackUrls.map((src, i) => ({
+        src,
+        alt: `ميكا للأبواب - صورة ${i + 1}`,
+      })),
+    [heroImages]
+  );
+
   const heroSlides = useMemo(
     () => [{ src: heroFallback, alt: "باب من ميكا للأبواب داخل مدخل منزل" }],
     [heroFallback]
@@ -96,7 +107,7 @@ export default function HomePage() {
     <div>
       {/* الترتيب (موبايل وديسكتوب): الهيرو «وصل حديثاً» ← الأكثر طلباً ← أقسام الموديلات */}
       <MobileHero
-        slides={heroModels.length > 0 ? heroModelSlides : heroSlides}
+        slides={heroModels.length > 0 ? heroModelSlides : fallbackSlides.length > 0 ? fallbackSlides : heroSlides}
         ctaTo={primaryCategoryPath}
         ctaLabel={heroModels.length > 0 ? "وصل حديثاً" : "اكتشف مجموعتنا"}
       />

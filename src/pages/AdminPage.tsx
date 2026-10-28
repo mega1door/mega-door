@@ -7,13 +7,13 @@ import { supabase } from "../lib/supabaseClient";
 import ModelForm, { type ModelFormValues } from "../components/admin/ModelForm";
 import CategoryManager from "../components/admin/CategoryManager";
 import SpecTemplateManager from "../components/admin/SpecTemplateManager";
-import SiteSettingsManager from "../components/admin/SiteSettingsManager";
 import AdminLoginGate from "../components/admin/AdminLoginGate";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 // HeroImageManager (نظام الثماني صور القديم) باقٍ بالكود بدون عرض: الهيرو صار صورة وحدة
 // تُدار من SiteSettingsManager.
 import BulkModelForm from "../components/admin/BulkModelForm";
 import HeroModelsManager from "../components/admin/HeroModelsManager";
+import HeroFallbackManager from "../components/admin/HeroFallbackManager";
 
 type Tab = "models" | "cats" | "specs" | "hero" | "settings";
 const TABS: { id: Tab; label: string }[] = [
@@ -197,7 +197,7 @@ export default function AdminPage() {
             {tab === "hero" && (
               <>
                 <HeroModelsManager />
-                <SiteSettingsManager />
+                <HeroFallbackManager />
               </>
             )}
             {tab === "settings" && (
