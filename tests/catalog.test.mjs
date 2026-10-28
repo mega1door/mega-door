@@ -30,7 +30,8 @@ test("metadata uses only real fields and does not invent price/specifications", 
   assert.match(meta.description, /أبيض RAL-9010/);
   assert.match(meta.description, /الأبواب الداخلية/);
   assert.equal(meta.image, `${SITE_BASE}/images/door.jpg`);
-  assert.match(meta.alt, /باب أنيق/);
+  assert.match(meta.alt, /باب داخلي/);
+  assert.doesNotMatch(meta.alt, /أنيق/);
   assert.match(meta.alt, /أبيض/);
   assert.equal(meta.canonical, `${SITE_BASE}/model/a-1/`);
   assert.equal(meta.product.offers, undefined);

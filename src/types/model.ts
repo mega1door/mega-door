@@ -21,6 +21,8 @@ export interface DoorModel {
   material?: string;
   /** اللون أو الألوان المتوفرة - اختياري: يُترك فارغاً إن لم يكن مؤكداً */
   color?: string;
+  /** Supabase models.color_code; keep as text to retain leading zeros. */
+  colorCode?: string;
   /** القياسات، مثال: 100 × 210 سم - اختياري: يُترك فارغاً إن لم يكن مؤكداً */
   dimensions?: string;
   /** نقاط المواصفات التقنية - اختياري: تُترك فارغة إن لم تكن مؤكدة */

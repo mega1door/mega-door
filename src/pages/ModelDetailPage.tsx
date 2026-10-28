@@ -18,6 +18,7 @@ export default function ModelDetailPage() {
   const model = id ? getModelById(models, id) : undefined;
   const categories = useCategories();
   const categoryLabel = model ? getCategoryById(categories, model.category)?.label ?? model.category : "";
+  const displayName = model ? modelMetadata(model, categoryLabel).name : "";
   const [activeImage, setActiveImage] = useState(0);
 
   // الصورة الكبيرة: SwipeCarousel (نظام الكاروسيل الموحّد). سحب لليسار = التالية، لليمين = السابقة.
@@ -77,7 +78,7 @@ export default function ModelDetailPage() {
           {categoryLabel}
         </Link>
         {" / "}
-        <span className="text-ink">{model.name}</span>
+        <span className="text-ink">{displayName}</span>
       </nav>
 
       {/* grid-cols-1 = minmax(0,1fr): بدونه العمود بالموبايل ياخذ عرض الصورة الأصلي
@@ -126,7 +127,7 @@ export default function ModelDetailPage() {
             </span>
           )}
           <p className="text-sm font-medium text-muted">{model.modelNumber}</p>
-          <h1 className="mt-1 font-display text-3xl font-extrabold text-ink">{model.name}</h1>
+          <h1 className="mt-1 font-display text-3xl font-extrabold text-ink">{displayName}</h1>
 
           <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-border py-5 text-sm">
             <div>

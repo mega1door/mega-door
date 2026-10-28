@@ -1,21 +1,18 @@
 import type { DoorModel } from "../types/model";
+import { normalizeSearch } from "./arabicText";
+import { doorName } from "./doorIdentity";
+export { normalizeSearch } from "./arabicText";
 
-export function normalizeSearch(value: string): string {
-  return value.normalize("NFKC").toLowerCase()
-    .replace(/[\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed\u0640]/g, "")
-    .replace(/[أإآٱ]/g, "ا").replace(/[ىئ]/g, "ي").replace(/ؤ/g, "و").replace(/ة/g, "ه")
-    .replace(/[٠-٩۰-۹]/g, (digit) => String(digit.charCodeAt(0) - (digit <= "٩" ? 0x660 : 0x6f0)))
-    .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
-}
-
-/** Color names/codes are searched only in the real `color` text; accent is decorative. */
+/** Every query token must match. Numeric code segments match exactly, not 205 -> 1205. */
 export function searchModels(models: DoorModel[], query: string, categories: { id: string; label: string }[] = []): DoorModel[] {
   const tokens = normalizeSearch(query).split(/\s+/).filter(Boolean);
   if (!tokens.length) return [];
   const labels = new Map(categories.map((category) => [category.id, category.label]));
   return models.filter((model) => {
-    const fields = [model.name, model.modelNumber, model.material, model.color, model.category, labels.get(model.category)]
-      .map((value) => normalizeSearch(value || "").replace(/\s/g, ""));
-    return tokens.every((token) => fields.some((field) => field.includes(token)));
+    const fields = [model.name, model.modelNumber, model.colorCode, model.material, model.color, model.category, labels.get(model.category), doorName(model, labels.get(model.category))]
+      .map((value) => normalizeSearch(value || ""));
+    return tokens.every((token) => fields.some((field) => /^\d+$/.test(token)
+      ? field.split(/\D+/).includes(token)
+      : field.replace(/\s/g, "").includes(token)));
   });
 }

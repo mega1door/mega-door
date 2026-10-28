@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { DoorModel } from "../types/model";
 import { modelMetadata } from "../lib/catalogMetadata";
+import { useCategories } from "../lib/categoriesStore";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 
 /**
@@ -14,6 +15,9 @@ import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
  * السعر غير معروض: لا يوجد حالياً خيار تفعيل لعرضه من لوحة الإدارة.
  */
 export default function ProductCard({ model }: { model: DoorModel }) {
+  const categories = useCategories();
+  const metadata = modelMetadata(model, categories.find(c => c.id === model.category)?.label);
+  const displayName = metadata.name;
   const subtitle = [model.material, model.color, model.dimensions].filter(Boolean).join(" · ");
 
   return (
@@ -24,7 +28,7 @@ export default function ProductCard({ model }: { model: DoorModel }) {
       <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-charcoal-deep lg:aspect-[3/4] lg:rounded-none lg:bg-canvas">
         <img
           src={getThumbnailUrl(model.images[0])}
-          alt={modelMetadata(model).alt}
+          alt={metadata.alt}
           loading="lazy"
           decoding="async"
           onError={(e) => handleThumbError(e, model.images[0])}
@@ -43,7 +47,7 @@ export default function ProductCard({ model }: { model: DoorModel }) {
           <span dir="ltr" className="[unicode-bidi:isolate]">
             {model.modelNumber}
           </span>{" "}
-          - {model.name}
+          - {displayName}
         </h3>
         {subtitle && <p className="mt-1 line-clamp-2 text-[12px] leading-[1.6] text-muted">{subtitle}</p>}
         <span aria-hidden="true" className="block min-h-3 flex-1" />
@@ -58,7 +62,7 @@ export default function ProductCard({ model }: { model: DoorModel }) {
       {/* الديسكتوب - بدون تغيير */}
       <div className="hidden p-5 lg:block">
         <p className="text-xs font-medium text-muted">{model.modelNumber}</p>
-        <h3 className="mt-1 font-display text-base font-bold text-ink">{model.name}</h3>
+        <h3 className="mt-1 font-display text-base font-bold text-ink">{displayName}</h3>
         {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
       </div>
     </Link>

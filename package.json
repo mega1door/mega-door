@@ -6,11 +6,12 @@
   "description": "الموقع الإلكتروني لشركة ميكا للأبواب - كتالوج إلكتروني للأبواب الداخلية والخارجية",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/generate-model-share-pages.mjs",
+    "build": "tsc -b && node scripts/build.mjs",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "test": "node --test tests/catalog.test.mjs tests/loading.test.mjs tests/pages.test.mjs",
-    "test:built": "node scripts/check-built-seo.mjs"
+    "test": "node --test tests/catalog.test.mjs tests/loading.test.mjs tests/pages.test.mjs tests/identity.test.mjs tests/bulk.test.mjs tests/invariants.test.mjs",
+    "test:built": "node scripts/check-built-seo.mjs",
+    "test:acceptance": "node --test tests/landing-acceptance.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
