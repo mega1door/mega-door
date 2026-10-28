@@ -116,3 +116,12 @@
 .site-font .group:active [class~="group-active:bg-bronze/10"] {
   background-color: #131E25 !important;
 }
+/* Unified public-site pressed, keyboard-focus and selected frames. */
+.site-font :is(button, a, summary):is(:active, :focus-visible),
+.site-font :is(button, a, summary)[aria-pressed="true"],
+.site-font :is(button, a, summary)[aria-expanded="true"],
+.site-font [role="tab"][aria-selected="true"] {
+  border-color: var(--mega-pure-blue) !important;
+  outline: 1px solid var(--mega-pure-blue) !important;
+  outline-offset: -1px;
+}
