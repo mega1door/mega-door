@@ -18,6 +18,15 @@ export function buildModelInquiryLink(model: DoorModel): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+/** رقم واتساب قسم المبيعات (07751420001) - يُستخدم لخيار «قسم المبيعات» بقائمة
+ * الهمبرغر والفوتر حتى يفتح محادثة نفس الرقم المكتوب، بغض النظر عن رقم الاختبار أعلاه. */
+export const SALES_WHATSAPP_NUMBER = "9647751420001";
+
+export function buildSalesWhatsAppLink(): string {
+  const message = "مرحباً، أريد الاستفسار عن أبواب ميكا.";
+  return `https://wa.me/${SALES_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 /** رابط واتساب عام (بدون رسالة عن موديل محدد) - يُستخدم في الهيدر/الفوتر وزر التواصل العائم */
 export function buildGeneralWhatsAppLink(): string {
   const message = "مرحباً، أريد الاستفسار عن أبواب ميكا.";

@@ -17,6 +17,28 @@
   }
 }
 
+/*
+ * خط موحّد لكل صفحات الموقع العام (موبايل وديسكتوب) = Tajawal، نفس خط تصميم الموبايل
+ * المعتمد. مقصور على Layout (.site-font) فلوحة الأدمن تبقى على خطوطها الحالية.
+ */
+@layer components {
+  .site-font,
+  .site-font h1,
+  .site-font h2,
+  .site-font h3,
+  .site-font h4,
+  .site-font .font-display {
+    font-family: theme("fontFamily.body");
+  }
+  .site-font h1,
+  .site-font h2,
+  .site-font h3,
+  .site-font h4 {
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+}
+
 @layer utilities {
   /* تخفي شريط التمرير لقائمة تنقّل الهيدر القابلة للسحب أفقياً بالهاتف، مع
      إبقاء إمكانية السحب نفسها فعّالة (فقط الشكل المرئي للشريط يختفي). */
@@ -36,31 +58,6 @@
    */
   .door-glow {
     animation: doorGlow 4.5s ease-in-out infinite;
-  }
-
-  /*
-   * شبكة "شريط المزايا" بالصفحة الرئيسية: صف واحد بكل المقاسات (بطلب صريح) -
-   * ترتيب العناصر مثبّت صراحة عبر grid-template-areas (وليس auto-placement)
-   * حتى يبقى نفس التسلسل (خدمة ما بعد البيع / ضمان 7 سنوات / مقاوم للرطوبة /
-   * عزل صوتي 90%) من اليمين لليسار بكل المقاسات.
-   */
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-areas: "f1 f2 f3 f4";
-    gap: 0.75rem;
-  }
-  .features-grid > :nth-child(1) {
-    grid-area: f1;
-  }
-  .features-grid > :nth-child(2) {
-    grid-area: f2;
-  }
-  .features-grid > :nth-child(3) {
-    grid-area: f3;
-  }
-  .features-grid > :nth-child(4) {
-    grid-area: f4;
   }
 
   /*

@@ -10,9 +10,12 @@ import { supabase } from "./supabaseClient";
 export interface SiteSettings {
   heroImageUrl: string | null;
   heroImages: string[]; // URLs of the 8 hero images
+  /** بريد التواصل الاختياري - يظهر بقائمة الهمبرغر فقط إذا موجود. ما له عمود
+   * بقاعدة البيانات بعد (يحتاج موافقة لإضافة site_settings.contact_email)، فيبقى null. */
+  contactEmail: string | null;
 }
 
-const initial: SiteSettings = { heroImageUrl: null, heroImages: [] };
+const initial: SiteSettings = { heroImageUrl: null, heroImages: [], contactEmail: null };
 
 type Listener = () => void;
 let listeners: Listener[] = [];
@@ -28,7 +31,7 @@ async function fetchSettings(): Promise<void> {
     console.error("تعذّرت قراءة إعدادات الموقع من قاعدة البيانات.", error);
     return;
   }
-  cache = { heroImageUrl: data?.hero_image_url ?? null, heroImages: data?.hero_images ?? [] };
+  cache = { heroImageUrl: data?.hero_image_url ?? null, heroImages: data?.hero_images ?? [], contactEmail: null };
   emitChange();
 }
 void fetchSettings();

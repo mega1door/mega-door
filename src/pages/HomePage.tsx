@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react";
-import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useModels } from "../lib/modelsStore";
 import { getPopularModels } from "../data/models";
@@ -12,54 +11,6 @@ import CircularCarousel from "../components/CircularCarousel";
 import MobileHero from "../components/MobileHero";
 import MobileCatalog from "../components/MobileCatalog";
 import { getThumbnailUrl, getFullImageUrl } from "../lib/imageUrl";
-
-const features: { icon: "headset" | "shield" | "drop" | "mute"; label: string }[] = [
-  { icon: "headset", label: "خدمة ما بعد البيع" },
-  { icon: "shield", label: "ضمان 7 سنوات" },
-  { icon: "drop", label: "مقاوم للرطوبة" },
-  { icon: "mute", label: "عزل صوتي 90%" },
-];
-
-function FeatureIcon({ kind }: { kind: "headset" | "shield" | "drop" | "mute" }) {
-  const paths: Record<typeof kind, ReactNode> = {
-    headset: (
-      <>
-        <path d="M4 13v-1a8 8 0 0 1 16 0v1" />
-        <rect x="3" y="13" width="4" height="6" rx="1.5" />
-        <rect x="17" y="13" width="4" height="6" rx="1.5" />
-        <path d="M20 19a4 4 0 0 1-4 3h-2" />
-      </>
-    ),
-    shield: (
-      <>
-        <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" />
-        <path d="M9 12l2 2 4-4" />
-      </>
-    ),
-    drop: <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" />,
-    mute: (
-      <>
-        <path d="M4 9v6h4l5 4V5L8 9H4Z" />
-        <line x1="17" y1="9" x2="22" y2="15" />
-        <line x1="22" y1="9" x2="17" y2="15" />
-      </>
-    ),
-  };
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {paths[kind]}
-    </svg>
-  );
-}
 
 export default function HomePage() {
   const models = useModels();
@@ -196,7 +147,7 @@ export default function HomePage() {
       {/* الأكثر طلباً هذا الشهر - القسم كامل يختفي إذا ما فيه أي موديل معلّم
           "الأكثر طلباً" حالياً من لوحة الإدارة (بدل عنوان بلا بطاقات تحته). */}
       {popularModels.length > 0 && (
-        <section className="py-16 lg:py-24">
+        <section className="pb-4 pt-12 lg:pb-6 lg:pt-20">
           <div className="mx-auto max-w-content px-4 sm:px-6">
             <div className="mb-10 text-right">
               <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold text-ink">الأكثر طلباً هذا الشهر</h2>
@@ -206,22 +157,6 @@ export default function HomePage() {
           </div>
         </section>
       )}
-
-      {/* مزايا سريعة */}
-      <section className="py-16 lg:py-24">
-        <div className="mx-auto max-w-content px-4 sm:px-6">
-          <div className="features-grid text-center">
-            {features.map((f) => (
-              <div key={f.icon}>
-                <div className="mx-auto mb-2.5 flex h-9 w-9 items-center justify-center rounded-full border border-brand-dark text-brand-dark">
-                  <FeatureIcon kind={f.icon} />
-                </div>
-                <p className="text-[11px] font-bold text-ink sm:text-[13px]">{f.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

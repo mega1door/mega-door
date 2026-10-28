@@ -7,6 +7,7 @@ import PopularPage from "./pages/PopularPage";
 import ModelDetailPage from "./pages/ModelDetailPage";
 import SearchPage from "./pages/SearchPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import FaqPage from "./pages/FaqPage";
 import AdminPage from "./pages/AdminPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { trackPageView } from "./lib/metaPixel";
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="popular" element={<PopularPage />} />
         <Route path="model/:id" element={<ModelDetailPage />} />
         <Route path="search" element={<SearchPage />} />
+        <Route path="faq" element={<FaqPage />} />
         {/* مسار ديناميكي لأي قسم مُدار من لوحة الإدارة (وليس فقط الأقسام الثلاثة الافتراضية:
             /interior و /exterior و /partitions تستمر تعمل لأن معرّفاتها تبقى نفسها) */}
         <Route path=":categorySlug" element={<CategoryListPage />} />

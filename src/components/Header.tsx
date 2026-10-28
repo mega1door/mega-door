@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useCategories } from "../lib/categoriesStore";
+import ContactAccordions from "./ContactAccordions";
 
 const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
   `block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors duration-200 ${
@@ -110,6 +111,11 @@ export default function Header() {
               </NavLink>
             ))}
           </nav>
+
+          {/* التواصل وعنوان المعرض: مخفية لحد ما ينضغط الخيار */}
+          <div className="mt-2 flex flex-col gap-1 border-t border-white/[0.06] pt-2 text-right lg:border-border">
+            <ContactAccordions source="menu" />
+          </div>
         </div>
       )}
     </header>
