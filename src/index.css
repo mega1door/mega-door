@@ -39,6 +39,196 @@
   }
 }
 
+/*
+ * لوحة الإدارة: خط Tajawal بأوزان خفيفة (400 نصوص، 500 أزرار وتسميات، 700 عناوين رئيسية)
+ * وألوان ثانوية أهدأ. مقصورة على .admin-ui فما تأثر على الموقع العام.
+ */
+@layer components {
+  .admin-ui {
+    font-family: theme("fontFamily.body");
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #e8ecf3;
+    background: #0b0f17;
+  }
+  .admin-ui .font-display,
+  .admin-ui h1,
+  .admin-ui h2,
+  .admin-ui h3 {
+    font-family: theme("fontFamily.body");
+  }
+  .admin-ui h1,
+  .admin-ui h2 {
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .admin-ui h3 {
+    font-weight: 500;
+    font-size: 16px;
+  }
+  .admin-ui .font-bold,
+  .admin-ui .font-semibold,
+  .admin-ui .font-extrabold,
+  .admin-ui label,
+  .admin-ui button {
+    font-weight: 500;
+  }
+  .admin-ui .font-medium {
+    font-weight: 400;
+  }
+  .admin-ui .text-slate-200,
+  .admin-ui .text-slate-300 {
+    color: #a9b2c3;
+  }
+  .admin-ui .text-slate-400,
+  .admin-ui .text-slate-500 {
+    color: #7e889b;
+  }
+  .admin-ui input,
+  .admin-ui select,
+  .admin-ui textarea,
+  .admin-ui input.font-semibold,
+  .admin-ui select.font-semibold,
+  .admin-ui textarea.font-semibold {
+    font-weight: 400;
+  }
+  .admin-ui .shadow-lg,
+  .admin-ui .shadow-xl,
+  .admin-ui .shadow-2xl {
+    box-shadow: none;
+  }
+  .admin-ui .bg-surface {
+    background-color: #121826;
+  }
+  .admin-ui .border-white\/20,
+  .admin-ui .border-white\/25 {
+    border-color: #232c3d;
+  }
+
+  .admin-card {
+    border: 1px solid #232c3d;
+    background: #121826;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .admin-h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .admin-field {
+    display: block;
+  }
+  .admin-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #a9b2c3;
+  }
+  .admin-input {
+    width: 100%;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #232c3d;
+    background: #0b0f17;
+    padding: 0 12px;
+    font-size: 15px;
+    color: #e8ecf3;
+  }
+  .admin-input:focus {
+    outline: none;
+    border-color: #3d9bff;
+    box-shadow: 0 0 0 1px #3d9bff;
+  }
+  .admin-hint {
+    display: block;
+    font-size: 13px;
+    color: #7e889b;
+  }
+  .admin-drop {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border: 1.5px dashed #34405a;
+    border-radius: 10px;
+    padding: 20px 16px;
+    color: #a9b2c3;
+    font-size: 15px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .admin-drop:hover {
+    border-color: #3d9bff;
+    background: rgba(61, 155, 255, 0.05);
+  }
+  .admin-btn {
+    display: inline-flex;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 8px;
+    border: 1px solid #232c3d;
+    background: #182031;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #e8ecf3;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .admin-btn:hover {
+    border-color: #3d9bff;
+  }
+  .admin-btn:disabled {
+    opacity: 0.55;
+  }
+  .admin-btn-primary {
+    border-color: #1489ff;
+    background: #1489ff;
+    color: #fff;
+  }
+  .admin-btn-danger {
+    background: transparent;
+    border-color: #4a2a30;
+    color: #f08080;
+  }
+  .admin-btn-sm {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .admin-bar {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #232c3d;
+    background: #121826;
+    margin: 0 -16px;
+    padding: 12px 16px;
+  }
+  .admin-alert {
+    border-radius: 8px;
+    border: 1px solid rgba(240, 128, 128, 0.4);
+    background: rgba(240, 128, 128, 0.08);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #f5a3a3;
+  }
+  .admin-ok {
+    border-radius: 8px;
+    border: 1px solid rgba(61, 155, 255, 0.35);
+    background: rgba(61, 155, 255, 0.08);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #9ccbff;
+  }
+}
+
 @layer utilities {
   /* تخفي شريط التمرير لقائمة تنقّل الهيدر القابلة للسحب أفقياً بالهاتف، مع
      إبقاء إمكانية السحب نفسها فعّالة (فقط الشكل المرئي للشريط يختفي). */

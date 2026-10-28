@@ -10,15 +10,43 @@ import SpecTemplateManager from "../components/admin/SpecTemplateManager";
 import SiteSettingsManager from "../components/admin/SiteSettingsManager";
 import AdminLoginGate from "../components/admin/AdminLoginGate";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
-import HeroImageManager from "../components/admin/HeroImageManager";
+// HeroImageManager (نظام الثماني صور القديم) باقٍ بالكود بدون عرض: الهيرو صار صورة وحدة
+// تُدار من SiteSettingsManager.
+import BulkModelForm from "../components/admin/BulkModelForm";
 
-type View = { mode: "list" } | { mode: "add" } | { mode: "edit"; id: string };
+type Tab = "models" | "cats" | "specs" | "hero" | "settings";
+const TABS: { id: Tab; label: string }[] = [
+  { id: "models", label: "الموديلات" },
+  { id: "cats", label: "الأقسام" },
+  { id: "specs", label: "المواصفات" },
+  { id: "hero", label: "الهيرو" },
+  { id: "settings", label: "إعدادات الموقع" },
+];
+
+type View = { mode: "list" } | { mode: "add" } | { mode: "bulk" } | { mode: "edit"; id: string };
 
 export default function AdminPage() {
   const models = useModels();
   const categories = useCategories();
   const [view, setView] = useState<View>({ mode: "list" });
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("models");
+  const [query, setQuery] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const q = query.trim().toLowerCase();
+  const visibleModels = models.filter(
+    (m) =>
+      (catFilter === "all" || m.category === catFilter) &&
+      (!q || [m.modelNumber, m.name, m.color ?? "", m.material ?? ""].join(" ").toLowerCase().includes(q))
+  );
+
+  function openTab(t: Tab) {
+    setTab(t);
+    setView({ mode: "list" });
+    setNotice(null);
+  }
 
   useEffect(() => {
     setPageSEO({
@@ -55,51 +83,137 @@ export default function AdminPage() {
     }
   }
 
+  const title =
+    tab === "models" && view.mode === "bulk"
+      ? "إضافة موديلات"
+      : tab === "models" && view.mode === "add"
+        ? "إضافة موديل"
+        : tab === "models" && view.mode === "edit"
+          ? `تعديل: ${editingModel?.name ?? ""}`
+          : TABS.find((t) => t.id === tab)!.label;
+
   return (
     <AdminLoginGate>
-      <div className="min-h-screen bg-canvas">
-        <div className="mx-auto max-w-content px-4 py-8 sm:px-6">
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">لوحة إدارة الموديلات</h1>
-              <p className="mt-2 text-sm sm:text-base font-semibold leading-relaxed text-slate-200">
-                إضافة وتعديل وحذف موديلات الأبواب، ورفع وترتيب الصور، وتحديد الأكثر طلباً.
-              </p>
+      <div className="admin-ui min-h-screen lg:flex">
+        {/* ديسكتوب: قائمة جانبية يمين */}
+        <aside className="hidden w-[232px] shrink-0 flex-col gap-1 border-l border-[#232c3d] bg-[#121826] px-3.5 py-5 lg:flex">
+          <div className="px-2.5 pb-4">
+            <p className="text-[17px] font-bold">ميكا</p>
+            <p className="text-[13px] text-[#7e889b]">لوحة الإدارة</p>
+          </div>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => openTab(t.id)}
+              className={`flex h-[42px] items-center rounded-lg px-3 text-right text-[15px] transition-colors ${
+                tab === t.id ? "bg-[#13294a] text-white" : "text-[#a9b2c3] hover:bg-white/5"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+          <div className="flex-1" />
+          <Link to="/" className="flex h-[42px] items-center rounded-lg px-3 text-[15px] text-[#a9b2c3] hover:bg-white/5">
+            عرض الموقع
+          </Link>
+          <button
+            type="button"
+            onClick={() => supabase.auth.signOut()}
+            className="flex h-[42px] items-center rounded-lg px-3 text-right text-[15px] text-[#a9b2c3] hover:bg-white/5"
+          >
+            تسجيل الخروج
+          </button>
+        </aside>
+
+        <div className="min-w-0 flex-1">
+          {/* موبايل: عنوان + تبويبات أفقية */}
+          <div className="border-b border-[#232c3d] lg:hidden">
+            <div className="flex items-center justify-between px-4 pt-3">
+              <p className="text-[13px] text-[#7e889b]">ميكا — لوحة الإدارة</p>
+              <div className="flex gap-3 text-[13px] text-[#a9b2c3]">
+                <Link to="/">الموقع</Link>
+                <button type="button" onClick={() => supabase.auth.signOut()}>
+                  خروج
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-5">
-              <Link to="/" className="text-sm sm:text-base font-semibold text-slate-200 transition hover:text-brand">
-                الرجوع للموقع
-              </Link>
-              <button
-                type="button"
-                onClick={() => supabase.auth.signOut()}
-                className="text-sm sm:text-base font-semibold text-slate-300 transition hover:text-red-300"
-              >
-                تسجيل خروج
-              </button>
+            <div className="scrollbar-hide flex gap-1.5 overflow-x-auto px-4 py-2.5">
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => openTab(t.id)}
+                  className={`h-9 shrink-0 rounded-full border px-3.5 text-[14px] ${
+                    tab === t.id ? "border-[#3d9bff] bg-[#13294a] text-white" : "border-[#232c3d] text-[#a9b2c3]"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
           </div>
 
-        {view.mode === "list" && (
-          <>
-            <SiteSettingsManager />
-            <CategoryManager models={models} />
-            <SpecTemplateManager />
-            <HeroImageManager />
-
-            <div className="mb-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => setView({ mode: "add" })}
-                className="rounded-full bg-brand px-6 py-3 text-sm sm:text-base font-bold text-white transition hover:brightness-110 shadow-lg shadow-brand/20"
-              >
-                + إضافة موديل جديد
-              </button>
+          <div className="mx-auto max-w-[1100px] px-4 py-5 lg:px-7 lg:py-6">
+            {/* العنوان بتبويب الموديلات بس - باقي التبويبات بيها عنوانها داخل البطاقة */}
+            {tab === "models" && (
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <h1>{title}</h1>
+              {tab === "models" && view.mode === "list" && (
+                <div className="flex gap-2">
+                  <button type="button" className="admin-btn admin-btn-primary" onClick={() => setView({ mode: "bulk" })}>
+                    + إضافة موديلات
+                  </button>
+                  <button type="button" className="admin-btn" onClick={() => setView({ mode: "add" })}>
+                    + موديل واحد
+                  </button>
+                </div>
+              )}
             </div>
+            )}
 
-            <div className="overflow-x-auto rounded-xl border border-white/20 bg-surface/60 shadow-xl">
+            {notice && <p className="admin-ok mb-4">{notice}</p>}
+
+            {tab === "cats" && <CategoryManager models={models} />}
+            {tab === "specs" && <SpecTemplateManager />}
+            {tab === "hero" && <SiteSettingsManager />}
+            {tab === "settings" && (
+              <div className="admin-card">
+                <p className="text-[#a9b2c3]">ماكو إعدادات إضافية حالياً.</p>
+                <p className="admin-hint mt-1">البريد الإلكتروني ينضاف هنا بعد الموافقة على إضافة حقله بقاعدة البيانات.</p>
+              </div>
+            )}
+
+            {tab === "models" && view.mode === "bulk" && (
+              <BulkModelForm
+                onCancel={() => setView({ mode: "list" })}
+                onDone={(n) => {
+                  setView({ mode: "list" });
+                  setNotice(`انحفظت ${n} موديلات، كل وحدة بصفحة ورابط خاص.`);
+                }}
+              />
+            )}
+            {tab === "models" && view.mode === "list" && (
+          <>
+            <div className="mb-3 flex flex-wrap gap-2">
+              <input
+                className="admin-input min-w-[180px] flex-1 lg:max-w-[340px]"
+                placeholder="ابحثي بالاسم أو الكود أو اللون"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <select className="admin-input w-full sm:w-[220px]" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
+                <option value="all">كل الأقسام</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="overflow-x-auto rounded-xl border border-[#232c3d] bg-[#121826]">
               <table className="w-full min-w-[640px] text-right text-sm">
-                <thead className="border-b border-white/20 bg-surface text-xs sm:text-sm font-bold text-slate-200">
+                <thead className="border-b border-[#232c3d] bg-[#182031] text-[13px] text-[#7e889b]">
                   <tr>
                     <th className="px-4 py-3 font-bold">الصورة</th>
                     <th className="px-4 py-3 font-bold">كود الموديل</th>
@@ -111,7 +225,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {models.map((m) => (
+                  {visibleModels.map((m) => (
                     <tr key={m.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
                       <td className="px-4 py-3">
                         <div className="h-12 w-10 overflow-hidden rounded-md border border-white/20 bg-canvas">
@@ -163,10 +277,10 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ))}
-                  {models.length === 0 && (
+                  {visibleModels.length === 0 && (
                     <tr>
                       <td colSpan={7} className="px-4 py-10 text-center text-sm sm:text-base font-semibold text-slate-200">
-                        لا توجد موديلات بعد.
+                        {models.length === 0 ? "لا توجد موديلات بعد." : "ماكو نتائج."}
                       </td>
                     </tr>
                   )}
@@ -176,19 +290,18 @@ export default function AdminPage() {
           </>
         )}
 
-        {view.mode === "add" && (
-          <div className="rounded-xl border border-white/20 bg-surface p-6 sm:p-8 shadow-2xl">
-            <h2 className="mb-6 font-display text-xl sm:text-2xl font-bold text-ink">إضافة موديل جديد</h2>
+        {tab === "models" && view.mode === "add" && (
+          <div className="admin-card">
             <ModelForm onSubmit={handleAdd} onCancel={() => setView({ mode: "list" })} />
           </div>
         )}
 
-        {view.mode === "edit" && editingModel && (
-          <div className="rounded-xl border border-white/20 bg-surface p-6 sm:p-8 shadow-2xl">
-            <h2 className="mb-6 font-display text-xl sm:text-2xl font-bold text-ink">تعديل: {editingModel.name}</h2>
+        {tab === "models" && view.mode === "edit" && editingModel && (
+          <div className="admin-card">
             <ModelForm initial={editingModel} onSubmit={handleEdit} onCancel={() => setView({ mode: "list" })} />
           </div>
         )}
+          </div>
         </div>
       </div>
     </AdminLoginGate>
