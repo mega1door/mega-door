@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { initMetaPixel } from "./lib/metaPixel";
 import "./index.css";
+import "./styles/brand-colors.css";
 
 initMetaPixel();
 

@@ -4,7 +4,8 @@ import { getModelById } from "../data/models";
 import { useModels } from "../lib/modelsStore";
 import { useCategories, getCategoryById } from "../lib/categoriesStore";
 import { buildModelInquiryLink } from "../lib/whatsapp";
-import { setPageSEO, toAbsoluteUrl } from "../lib/seo";
+import { setPageSEO } from "../lib/seo";
+import { modelMetadata } from "../lib/catalogMetadata";
 import { trackContact, trackViewContent } from "../lib/metaPixel";
 import DragScroller from "../components/DragScroller";
 import SwipeCarousel from "../components/SwipeCarousel";
@@ -33,22 +34,12 @@ export default function ModelDetailPage() {
   }, [activeImage]);
 
   useEffect(() => {
-    if (!model) return;
-    const knownDetails = [model.material, model.color, model.dimensions ? `مقاس ${model.dimensions}` : null].filter(
-      Boolean
-    );
-    const description = knownDetails.length
-      ? `${model.name}، موديل ${model.modelNumber}: ${knownDetails.join("، ")}.${
-          model.usage ? ` ${model.usage}.` : ""
-        }`
-      : `${model.name}، موديل ${model.modelNumber} من ميكا للأبواب - بغداد.`;
-
-    setPageSEO({
-      title: `${model.name} - ${model.modelNumber} | ميكا للأبواب`,
-      description,
-      path: `/model/${model.id}`,
-      image: model.images[0],
-    });
+    if (!model) {
+      setPageSEO({ title: "الموديل غير موجود | ميكا للأبواب", description: "الموديل المطلوب غير متوفر.", path: `/model/${encodeURIComponent(id || "")}/`, noindex: true });
+      return;
+    }
+    const metadata = modelMetadata(model, categoryLabel);
+    setPageSEO(metadata);
     trackViewContent({ modelNumber: model.modelNumber, modelName: model.name, category: model.category });
     setActiveImage(0);
 
@@ -58,19 +49,10 @@ export default function ModelDetailPage() {
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.id = scriptId;
-    script.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: model.name,
-      sku: model.modelNumber,
-      description: [model.material, model.color, model.dimensions].filter(Boolean).join(" - ") || undefined,
-      category: categoryLabel,
-      image: model.images.map(toAbsoluteUrl),
-      brand: { "@type": "Brand", name: "ميكا للأبواب" },
-    });
+    script.textContent = JSON.stringify(metadata.product);
     document.head.appendChild(script);
     return () => script.remove();
-  }, [model, categoryLabel]);
+  }, [model, categoryLabel, id]);
 
   if (!model) {
     return (
@@ -108,7 +90,7 @@ export default function ModelDetailPage() {
             index={activeImage}
             onIndexChange={setActiveImage}
             resetKey={model.id}
-            getAlt={(i) => `صورة ${i + 1} لباب ${model.name} - موديل ${model.modelNumber}`}
+            getAlt={(i) => `${modelMetadata(model, categoryLabel).alt} — صورة ${i + 1}`}
             className="aspect-[3/4] rounded-2xl border border-border bg-canvas shadow-[0_0_26px_2px_rgba(20,137,255,0.2)]"
           />
           {model.images.length > 1 && (

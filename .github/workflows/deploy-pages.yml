@@ -26,7 +26,10 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+      - run: npm test
+      - run: npm run lint
       - run: npm run build
+      - run: npm run test:built
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

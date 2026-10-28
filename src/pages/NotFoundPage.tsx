@@ -4,7 +4,7 @@ import { setPageSEO } from "../lib/seo";
 
 export default function NotFoundPage() {
   useEffect(() => {
-    setPageSEO({ title: "الصفحة غير موجودة | ميكا للأبواب", description: "الصفحة المطلوبة غير متوفرة." });
+    setPageSEO({ title: "الصفحة غير موجودة | ميكا للأبواب", description: "الصفحة المطلوبة غير متوفرة.", noindex: true });
   }, []);
 
   return (

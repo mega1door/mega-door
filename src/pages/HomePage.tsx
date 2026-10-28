@@ -5,6 +5,7 @@ import { getPopularModels } from "../data/models";
 import { useCategories } from "../lib/categoriesStore";
 import { useSiteSettings } from "../lib/siteSettingsStore";
 import { setPageSEO } from "../lib/seo";
+import { modelMetadata } from "../lib/catalogMetadata";
 import CircularCarousel from "../components/CircularCarousel";
 import MobileHero from "../components/MobileHero";
 import PopularSlider from "../components/PopularSlider";
@@ -72,7 +73,7 @@ export default function HomePage() {
     () =>
       heroModels.map((m) => ({
         src: m.images[0],
-        alt: `باب ${m.name} - موديل ${m.modelNumber}`,
+        alt: modelMetadata(m).alt,
         href: `/model/${m.id}`,
         fit: "contain" as const,
       })),
@@ -109,7 +110,7 @@ export default function HomePage() {
       <MobileHero
         slides={heroModels.length > 0 ? heroModelSlides : fallbackSlides.length > 0 ? fallbackSlides : heroSlides}
         ctaTo={primaryCategoryPath}
-        ctaLabel={heroModels.length > 0 ? "وصل حديثاً" : "اكتشف مجموعتنا"}
+        ctaLabel="وصل حديثاً"
       />
 
       {/* الأكثر طلباً هذا الشهر - نفس التصميم القديم، صار مباشرة تحت الهيرو. القسم كامل

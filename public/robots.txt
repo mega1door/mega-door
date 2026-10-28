@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /mega-door/admin
+Disallow: /mega-door/reset-password
 
-Sitemap: https://megadoor.iq/sitemap.xml
+Sitemap: https://mega1door.github.io/mega-door/sitemap.xml

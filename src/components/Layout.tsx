@@ -3,6 +3,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
 import SwipeBackGesture from "./SwipeBackGesture";
+import CatalogBoundary from "./CatalogBoundary";
 
 export default function Layout() {
   return (
@@ -11,7 +12,7 @@ export default function Layout() {
       <div className="relative z-10 flex min-h-screen flex-1 flex-col">
         <Header />
         <main className="flex-1">
-          <Outlet />
+          <CatalogBoundary><Outlet /></CatalogBoundary>
         </main>
         <Footer />
         <WhatsAppButton />

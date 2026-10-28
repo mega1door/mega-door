@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  هذا Sitemap ثابت يُحدَّث يدوياً حالياً - يجب إضافة/حذف سطر <url> هنا كل ما أضيف
-  أو حُذف قسم أو موديل من لوحة الإدارة (/admin)، لأن القائمة الحالية تطابق أقسام
-  وموديلات src/data/models.ts + src/lib/categoriesStore.ts وقت آخر تحديث لهذا الملف.
-  ملاحظة: /exterior و/partitions غير مُدرجين حالياً لأنه لا توجد بهما موديلات حقيقية
-  بعد (صفحات فارغة لا تفيد بمحركات البحث) - يُضافان فور إضافة أول موديل حقيقي لكل منهما.
-  بعد ربط Supabase، يجب توليده ديناميكياً (عند كل Build أو عبر Edge Function)
-  بحيث تُضاف تلقائياً صفحة كل موديل جديد (/model/:id) دون تدخل يدوي.
--->
+<!-- Build adds current categories and models from Supabase, never demo IDs. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://megadoor.iq/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://megadoor.iq/interior</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://megadoor.iq/popular</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
+  <url><loc>https://mega1door.github.io/mega-door/</loc></url>
+  <url><loc>https://mega1door.github.io/mega-door/popular/</loc></url>
 </urlset>
-

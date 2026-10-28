@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { supabase } from "./supabaseClient";
+import { createRemoteCollection } from "./remoteCollection";
 
 export interface DoorCategoryInfo {
   /** المعرّف = جزء الرابط، مثال: interior → /interior. لا يتغيّر بعد الإنشاء. */
@@ -15,65 +16,35 @@ export interface DoorCategoryInfo {
  * (جدول public.categories). أي تعديل من لوحة الإدارة يظهر فوراً لكل الزوار
  * بعد إعادة تحميل الصفحة، مو بس بمتصفح من سوّى التعديل.
  *
- * قيمة seedCategories أدناه تُستخدم فقط كحالة أولية تظهر لحظياً قبل اكتمال
- * أول طلب فعلي من قاعدة البيانات (تفادي شاشة فارغة أثناء التحميل)، وكحالة
- * احتياطية إذا تعذّر الاتصال بقاعدة البيانات لأي سبب.
+ * يبدأ بلا أقسام افتراضية؛ حالة التحميل والفشل منفصلة عن نجاح الطلب بلا بيانات.
  */
-const seedCategories: DoorCategoryInfo[] = [
-  {
-    id: "interior",
-    label: "الأبواب الداخلية والصحيات",
-    description:
-      "تشكيلة أبواب داخلية وصحيات بخامات خشبية وزجاجية متعددة تناسب غرف النوم والمكاتب والصالات.",
-  },
-  {
-    id: "exterior",
-    label: "الأبواب الخارجية",
-    description:
-      "أبواب خارجية حديدية عالية الأمان بتصاميم كلاسيكية وعصرية تناسب المداخل الرئيسية والفلل.",
-  },
-  {
-    id: "partitions",
-    label: "القواطع الداخلية",
-    description: "قواطع داخلية بتصاميم خشبية وزجاجية عصرية لفصل المساحات المفتوحة دون إغلاقها بالكامل.",
-  },
-];
-
-type Listener = () => void;
-let listeners: Listener[] = [];
-let cache: DoorCategoryInfo[] = seedCategories;
-
-function emitChange() {
-  listeners.forEach((listener) => listener());
-}
-
-async function fetchCategories(): Promise<void> {
+const collection = createRemoteCollection<DoorCategoryInfo>(async () => {
   const { data, error } = await supabase
     .from("categories")
     .select("id,label,description")
     .order("sort_order", { ascending: true });
   if (error) {
     console.error("تعذّرت قراءة الأقسام من قاعدة البيانات.", error);
-    return;
+    throw error;
   }
-  cache = data ?? [];
-  emitChange();
-}
+  return data ?? [];
+});
+export const refreshCategories = collection.refresh;
+const fetchCategories = refreshCategories;
 void fetchCategories();
 
 export function getCategoriesSnapshot(): DoorCategoryInfo[] {
-  return cache;
+  return collection.getSnapshot().items;
 }
 
-export function subscribeCategories(listener: Listener): () => void {
-  listeners = [...listeners, listener];
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
-  };
-}
+export const subscribeCategories = collection.subscribe;
 
 export function useCategories(): DoorCategoryInfo[] {
-  return useSyncExternalStore(subscribeCategories, getCategoriesSnapshot, () => seedCategories);
+  return useSyncExternalStore(subscribeCategories, getCategoriesSnapshot, getCategoriesSnapshot);
+}
+
+export function useCategoriesStatus() {
+  return useSyncExternalStore(collection.subscribe, collection.getSnapshot, collection.getSnapshot).status;
 }
 
 function slugify(input: string): string {
@@ -86,7 +57,7 @@ function slugify(input: string): string {
 }
 
 /** مسارات ثابتة بالموقع لا يجوز أن يتصادم معها معرّف قسم جديد (وإلا صار غير قابل للوصول) */
-const RESERVED_SLUGS = ["admin", "popular", "search", "model", "design-your-door", "faq"];
+const RESERVED_SLUGS = ["admin", "popular", "search", "model", "design-your-door", "faq", "reset-password"];
 
 function uniqueId(base: string, existing: DoorCategoryInfo[]): string {
   let candidate = base;

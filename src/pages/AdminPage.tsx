@@ -8,6 +8,7 @@ import ModelForm, { type ModelFormValues } from "../components/admin/ModelForm";
 import CategoryManager from "../components/admin/CategoryManager";
 import SpecTemplateManager from "../components/admin/SpecTemplateManager";
 import AdminLoginGate from "../components/admin/AdminLoginGate";
+import CatalogBoundary from "../components/CatalogBoundary";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 // HeroImageManager (نظام الثماني صور القديم) باقٍ بالكود بدون عرض: الهيرو صار صورة وحدة
 // تُدار من SiteSettingsManager.
@@ -67,6 +68,7 @@ export default function AdminPage() {
       title: "لوحة الإدارة | ميكا للأبواب",
       description: "لوحة إدارة داخلية لإضافة وتعديل موديلات أبواب ميكا.",
       path: "/admin",
+      noindex: true,
     });
   }, []);
 
@@ -107,7 +109,7 @@ export default function AdminPage() {
           : TABS.find((t) => t.id === tab)!.label;
 
   return (
-    <AdminLoginGate>
+    <AdminLoginGate><CatalogBoundary>
       <div className="admin-ui min-h-screen lg:flex">
         {/* شريط علوي للشاشات الصغيرة فقط: زر القائمة + اسم القسم الحالي */}
         <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[#232c3d] bg-[#121826] px-4 py-2.5 lg:hidden">
@@ -307,6 +309,6 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
-    </AdminLoginGate>
+    </CatalogBoundary></AdminLoginGate>
   );
 }

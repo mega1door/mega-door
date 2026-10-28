@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { searchModels } from "../data/models";
 import { useModels } from "../lib/modelsStore";
+import { useCategories } from "../lib/categoriesStore";
 import ProductCard from "../components/ProductCard";
 import { setPageSEO } from "../lib/seo";
 
@@ -15,13 +16,15 @@ export default function SearchPage() {
       title: query ? `نتائج البحث عن "${query}" | ميكا للأبواب` : "بحث عن موديل | ميكا للأبواب",
       description: "ابحث عن موديلات أبواب ميكا حسب الاسم أو كود الموديل أو النوع أو اللون.",
       path: "/search",
+      noindex: true,
     });
   }, [query]);
 
   useEffect(() => setInput(query), [query]);
 
   const allModels = useModels();
-  const results = searchModels(allModels, query);
+  const categories = useCategories();
+  const results = searchModels(allModels, query, categories);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

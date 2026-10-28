@@ -1,0 +1,118 @@
+/* Approved brand primitives. Public site only; no admin or logo recoloring. */
+:root {
+  --mega-royal-blue: #0034B8;
+  --mega-pure-blue: #0052D4;
+}
+.site-font {
+  --mega-accent: var(--mega-royal-blue);
+  --mega-accent-hover: var(--mega-pure-blue);
+  --mega-accent-detail: var(--mega-pure-blue);
+  --mega-readable-text: #FFFFFF;
+  --mega-control-boundary: #9AA1AC;
+}
+.site-font [class~="bg-bronze"],
+.site-font [class~="bg-brand"],
+.site-font [class~="lg:bg-brand"],
+.site-font [class~="bg-bronze/15"],
+.site-font [class~="lg:bg-brand/15"] {
+  background-color: var(--mega-accent) !important;
+  color: var(--mega-readable-text) !important;
+  outline: 1px solid var(--mega-control-boundary);
+  outline-offset: -1px;
+}
+.site-font [role="tab"][aria-selected="true"] {
+  background-color: var(--mega-pure-blue) !important;
+  color: var(--mega-readable-text) !important;
+  border-color: var(--mega-readable-text) !important;
+}
+.site-font [class~="bg-bronze"]:hover,
+.site-font [class~="bg-brand"]:hover,
+.site-font [class~="lg:bg-brand"]:hover,
+.site-font [class~="active:bg-bronze/10"]:active,
+.site-font .group:active [class~="group-active:bg-bronze/10"] {
+  background-color: var(--mega-accent-hover) !important;
+  color: var(--mega-readable-text) !important;
+}
+/* Neither approved blue meets AA for small text on charcoal: preserve white text
+   and use the exact Pure Blue for the underline instead of inventing a tint. */
+.site-font [class~="text-bronze-light"],
+.site-font [class~="text-brand"],
+.site-font [class~="text-brand-dark"],
+.site-font [class~="lg:text-brand"],
+.site-font [class~="lg:text-brand-dark"] {
+  color: var(--mega-readable-text) !important;
+  text-decoration-line: underline;
+  text-decoration-color: var(--mega-accent-detail);
+  text-decoration-thickness: 2px;
+  text-underline-offset: .2em;
+}
+.site-font [class~="hover:text-bronze-light"]:hover,
+.site-font [class~="lg:hover:text-brand-dark"]:hover,
+.site-font [class~="hover:text-brand"]:hover {
+  color: var(--mega-readable-text) !important;
+  text-decoration: underline var(--mega-accent-detail) 2px;
+}
+.site-font [class~="border-bronze"],
+.site-font [class~="border-brand"],
+.site-font [class~="border-bronze/60"],
+.site-font [class~="border-bronze/70"],
+.site-font [class~="border-bronze/75"] {
+  border-color: var(--mega-control-boundary) !important;
+}
+.site-font [class~="hover:border-brand"]:hover,
+.site-font [class~="focus:border-brand"]:focus {
+  border-color: var(--mega-readable-text) !important;
+}
+
+/* Approved quiet treatment: charcoal surfaces, white text, blue details. */
+.site-font [class~="bg-bronze"],
+.site-font [class~="bg-brand"],
+.site-font [class~="lg:bg-brand"],
+.site-font [class~="bg-bronze"]:hover,
+.site-font [class~="bg-brand"]:hover,
+.site-font [class~="lg:bg-brand"]:hover {
+  background-color: #131E25 !important;
+  color: #FFFFFF !important;
+  outline-color: rgb(255 255 255 / .3) !important;
+  box-shadow: inset 0 -1px 0 var(--mega-royal-blue);
+}
+.site-font [role="tab"][aria-selected="true"] {
+  background-color: #131E25 !important;
+  color: #FFFFFF !important;
+  border-color: #9AA1AC !important;
+  outline-color: transparent !important;
+  box-shadow: inset 0 -2px 0 var(--mega-pure-blue);
+}
+.site-font [class~="bg-bronze/15"],
+.site-font [class~="lg:bg-brand/15"] {
+  background-color: #131E25 !important;
+  color: #FFFFFF !important;
+  outline-color: transparent !important;
+  box-shadow: inset 0 -1px 0 var(--mega-pure-blue);
+}
+.site-font [class~="text-bronze-light"],
+.site-font [class~="text-brand"],
+.site-font [class~="text-brand-dark"],
+.site-font [class~="lg:text-brand"],
+.site-font [class~="lg:text-brand-dark"] {
+  color: #FFFFFF !important;
+  text-decoration-line: none;
+}
+.site-font [class~="border-bronze"],
+.site-font [class~="border-brand"],
+.site-font [class~="border-bronze/60"],
+.site-font [class~="border-bronze/70"],
+.site-font [class~="border-bronze/75"] {
+  border-color: rgb(255 255 255 / .3) !important;
+}
+.site-font [class~="bg-bronze"]:hover,
+.site-font [class~="bg-brand"]:hover,
+.site-font [class~="lg:bg-brand"]:hover,
+.site-font [class~="hover:border-brand"]:hover {
+  outline-color: var(--mega-pure-blue) !important;
+  box-shadow: inset 0 -1px 0 var(--mega-pure-blue);
+}
+.site-font [class~="active:bg-bronze/10"]:active,
+.site-font .group:active [class~="group-active:bg-bronze/10"] {
+  background-color: #131E25 !important;
+}

@@ -25,7 +25,7 @@ const SWIPE_MIN = 40;
 export default function MobileHero({
   slides,
   ctaTo,
-  ctaLabel = "اكتشف مجموعتنا",
+  ctaLabel = "وصل حديثاً",
 }: {
   slides: MobileHeroSlide[];
   ctaTo: string;
@@ -154,12 +154,12 @@ export default function MobileHero({
         className="pointer-events-none absolute inset-0 z-[3] bg-[linear-gradient(to_left,rgba(8,12,15,0.78)_0%,rgba(8,12,15,0.45)_42%,rgba(8,12,15,0)_70%),linear-gradient(to_top,rgba(8,12,15,0.55)_0%,rgba(8,12,15,0)_32%)]"
       />
 
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-[5] flex w-[64%] flex-col justify-center pe-4 ps-2 text-right lg:w-[46%] lg:justify-end lg:pb-16 lg:ps-[max(1.5rem,calc((100vw_-_1280px)/2_+_1.5rem))]">
-        <h1 className="font-body text-[26px] font-bold leading-[1.3] lg:text-[40px] text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.45)]">
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-[5] flex w-[64%] flex-col justify-end pb-5 pe-4 ps-2 text-right lg:w-[46%] lg:translate-y-2 lg:pb-16 lg:ps-[max(1.5rem,calc((100vw_-_1280px)/2_+_1.5rem))]">
+        <h1 className="font-body text-[23px] font-bold leading-[1.3] lg:text-[36px] text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.45)]">
           بوابتكم نحو
           <span className="block text-bronze-light">الفخامة والأمان</span>
         </h1>
-        <p className="mt-1.5 text-[12.5px] font-semibold leading-5 lg:mt-2.5 lg:text-[18px] lg:leading-[1.6] text-white/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+        <p className="mt-1.5 text-[11.5px] font-semibold leading-5 lg:mt-2.5 lg:text-[16px] lg:leading-[1.6] text-white/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
           ميكا للأبواب: حيث يلتقي التصميم بالمتانة
         </p>
         <Link

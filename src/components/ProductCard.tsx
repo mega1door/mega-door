@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { DoorModel } from "../types/model";
+import { modelMetadata } from "../lib/catalogMetadata";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 
 /**
@@ -17,13 +18,13 @@ export default function ProductCard({ model }: { model: DoorModel }) {
 
   return (
     <Link
-      to={`/model/${model.id}`}
+      to={`/model/${encodeURIComponent(model.id)}/`}
       className="group flex h-full flex-col overflow-hidden rounded-[14px] border border-white/[0.06] bg-charcoal-card p-1.5 transition active:scale-[0.99] lg:door-glow lg:block lg:rounded-2xl lg:border-silver/25 lg:bg-surface lg:p-0 lg:hover:-translate-y-1 lg:hover:shadow-lg lg:hover:shadow-black/5"
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-charcoal-deep lg:aspect-[3/4] lg:rounded-none lg:bg-canvas">
         <img
           src={getThumbnailUrl(model.images[0])}
-          alt={`باب ${model.name} - موديل ${model.modelNumber}`}
+          alt={modelMetadata(model).alt}
           loading="lazy"
           decoding="async"
           onError={(e) => handleThumbError(e, model.images[0])}

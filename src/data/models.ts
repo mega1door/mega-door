@@ -35,14 +35,4 @@ export function getPopularModels(models: DoorModel[]): DoorModel[] {
   return models.filter((m) => m.isPopular);
 }
 
-export function searchModels(models: DoorModel[], query: string): DoorModel[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
-  return models.filter(
-    (m) =>
-      m.name.toLowerCase().includes(q) ||
-      m.modelNumber.toLowerCase().includes(q) ||
-      (m.material ?? "").toLowerCase().includes(q) ||
-      (m.color ?? "").toLowerCase().includes(q)
-  );
-}
+export { searchModels } from "../lib/search";

@@ -1,20 +1,16 @@
 import { useSyncExternalStore } from "react";
 import type { DoorModel } from "../types/model";
 import { supabase } from "./supabaseClient";
-import { demoModels as seedModels } from "../data/models";
+import { createRemoteCollection } from "./remoteCollection";
 
 /**
  * مخزن الموديلات - قاعدة بيانات Supabase حقيقية مشتركة (جدول public.models).
  * أي إضافة/تعديل/حذف من لوحة الإدارة يظهر لكل زوار الموقع الحقيقيين بعد
  * إعادة تحميل الصفحة، مو بس بمتصفح من سوّى التعديل.
  *
- * seedModels تُستخدم فقط كحالة أولية لحظية قبل اكتمال أول طلب فعلي (تفادي
- * شاشة فارغة)، وكحالة احتياطية إذا تعذّر الاتصال بقاعدة البيانات.
+ * يبدأ فارغاً، مع حالة تحميل أو خطأ منفصلة؛ لا يعرض موديلات تجريبية للزوار.
  */
 
-type Listener = () => void;
-let listeners: Listener[] = [];
-let cache: DoorModel[] = seedModels;
 
 type ModelRow = {
   id: string;
@@ -70,18 +66,7 @@ function modelToRow(data: Omit<DoorModel, "id">) {
   };
 }
 
-function emitChange() {
-  listeners.forEach((l) => l());
-}
-
-async function fetchModels(): Promise<void> {
-  // فحص محلي لاختبار تجربة الزائر عند خلو الكتالوج دون المساس بقاعدة بيانات Supabase
-  if (typeof window !== "undefined" && window.location.search.includes("empty=1")) {
-    cache = [];
-    emitChange();
-    return;
-  }
-
+const collection = createRemoteCollection<DoorModel>(async () => {
   const { data, error } = await supabase
     .from("models")
     .select(
@@ -90,27 +75,27 @@ async function fetchModels(): Promise<void> {
     .order("created_at", { ascending: false });
   if (error) {
     console.error("تعذّرت قراءة الموديلات من قاعدة البيانات.", error);
-    return;
+    throw error;
   }
-  cache = (data ?? []).map(rowToModel);
-  emitChange();
-}
+  return (data ?? []).map(rowToModel);
+});
+export const refreshModels = collection.refresh;
+const fetchModels = refreshModels;
 void fetchModels();
 
 export function getModelsSnapshot(): DoorModel[] {
-  return cache;
+  return collection.getSnapshot().items;
 }
 
-export function subscribeModels(listener: Listener): () => void {
-  listeners.push(listener);
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
-  };
-}
+export const subscribeModels = collection.subscribe;
 
 /** يقرأ لائحة الموديلات الحالية ويعيد رسم أي مكوّن يستخدمه عند أي تعديل (إضافة/تعديل/حذف). */
 export function useModels(): DoorModel[] {
-  return useSyncExternalStore(subscribeModels, getModelsSnapshot, () => seedModels);
+  return useSyncExternalStore(subscribeModels, getModelsSnapshot, getModelsSnapshot);
+}
+
+export function useModelsStatus() {
+  return useSyncExternalStore(collection.subscribe, collection.getSnapshot, collection.getSnapshot).status;
 }
 
 function slugify(input: string): string {
