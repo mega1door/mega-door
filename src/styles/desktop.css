@@ -1,0 +1,34 @@
+/* Approved desktop layout. Every rule is gated; no palette or mobile changes. */
+@media(min-width:1024px){
+  .site-font{background:#0e171c!important}
+  .site-font .max-w-content{max-width:1600px;width:calc(100% - 96px);padding-left:0;padding-right:0}
+  .site-font header,.site-font header>div{background:#0e171c!important}
+  .site-font header>div:first-child{display:grid!important;max-width:1600px;width:calc(100% - 96px);margin:auto;padding:12px 0;grid-template-columns:52px 1fr 52px}
+  .site-font header>div:first-child img{width:64px;height:64px}
+  .site-font header>div:nth-child(2){display:none!important}
+  .site-font section[aria-label="صور ميكا للأبواب"]{width:calc(100% - 96px);max-width:1600px;margin:24px auto 0;height:540px;min-height:0;border-radius:24px}
+  .site-font section[aria-label="صور ميكا للأبواب"]>div[aria-hidden]>img:last-child{object-fit:contain!important;object-position:18% center;padding:20px 24px!important}
+  .site-font section[aria-label="صور ميكا للأبواب"]>[class~="inset-y-0"]{width:44%;padding:0 40px 48px!important;transform:none}
+  .site-font section[aria-label="صور ميكا للأبواب"] h1{font-size:36px;line-height:1.3}
+  .site-font section[aria-label="صور ميكا للأبواب"] p{font-size:15px}
+  .site-font main>div>div.hidden.pt-8{padding-top:0}
+  .desktop-catalog-proposal{width:calc(100% - 96px);max-width:1600px;margin:48px auto 40px}
+  .desktop-category-proposal{padding:0 0 32px;margin:0 0 32px;border-bottom:1px solid #ffffff12}
+  .desktop-category-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}
+  .desktop-category-heading h2{font-size:26px;line-height:1.5}
+  .desktop-category-heading a{display:inline-flex;align-items:center;min-height:44px;font-size:14px;color:inherit}
+  .desktop-model-grid{display:grid;gap:24px;margin-inline:auto;width:100%;align-items:stretch}
+  .desktop-empty-category{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 24px;border:1px solid #ffffff12;border-radius:14px;background:#131e25}
+  .desktop-empty-category p{font-size:15px}
+  .desktop-empty-category a{font-size:14px;min-height:44px;display:inline-flex;align-items:center}
+  .site-font a.group h3.font-body{font-size:16px;line-height:1.6}
+  .site-font a.group .text-\[12px\]{font-size:13px;line-height:1.7}
+  .site-font a.group .h-10{height:44px}
+  .site-font [class~="grid-cols-2"][class~="lg:grid-cols-4"]{grid-template-columns:repeat(auto-fit,minmax(240px,340px));justify-content:center}
+  .site-font [aria-label="معرض صور الموديل"]{max-height:700px}
+}
+@media(min-width:1600px){
+  .site-font section[aria-label="صور ميكا للأبواب"]{height:600px}
+  .site-font section[aria-label="صور ميكا للأبواب"] h1{font-size:40px}
+  .desktop-category-heading h2{font-size:28px}
+}

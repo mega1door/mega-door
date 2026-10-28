@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { DoorModel } from "../types/model";
 import { modelMetadata } from "../lib/catalogMetadata";
+import { doorName } from "../lib/doorIdentity";
 import { useCategories } from "../lib/categoriesStore";
 import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
 
@@ -16,33 +17,35 @@ import { getThumbnailUrl, handleThumbError } from "../lib/imageUrl";
  */
 export default function ProductCard({ model }: { model: DoorModel }) {
   const categories = useCategories();
-  const metadata = modelMetadata(model, categories.find(c => c.id === model.category)?.label);
-  const displayName = metadata.name;
+  const categoryLabel = categories.find(c => c.id === model.category)?.label;
+  const metadata = modelMetadata(model, categoryLabel);
+  // The card already renders its code separately; SEO/Alt keep the complete name.
+  const displayName = doorName({ ...model, modelNumber: "" }, categoryLabel);
   const subtitle = [model.material, model.color, model.dimensions].filter(Boolean).join(" · ");
 
   return (
     <Link
       to={`/model/${encodeURIComponent(model.id)}/`}
-      className="group flex h-full flex-col overflow-hidden rounded-[14px] border border-white/[0.06] bg-charcoal-card p-1.5 transition active:scale-[0.99] lg:door-glow lg:block lg:rounded-2xl lg:border-silver/25 lg:bg-surface lg:p-0 lg:hover:-translate-y-1 lg:hover:shadow-lg lg:hover:shadow-black/5"
+      className="group flex h-full flex-col overflow-hidden rounded-[14px] border border-white/[0.06] bg-charcoal-card p-1.5 transition active:scale-[0.99]         "
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-charcoal-deep lg:aspect-[3/4] lg:rounded-none lg:bg-canvas">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-charcoal-deep   ">
         <img
           src={getThumbnailUrl(model.images[0])}
           alt={metadata.alt}
           loading="lazy"
           decoding="async"
           onError={(e) => handleThumbError(e, model.images[0])}
-          className="h-full w-full object-contain transition duration-300 lg:group-hover:scale-105"
+          className="h-full w-full object-contain transition duration-300 "
         />
         {model.isPopular && (
-          <span className="absolute right-2 top-2 rounded-full bg-bronze px-2.5 py-0.5 text-[11px] font-bold text-charcoal lg:right-3 lg:top-3 lg:bg-brand lg:px-3 lg:py-1 lg:text-xs lg:text-white">
+          <span className="absolute right-2 top-2 rounded-full bg-bronze px-2.5 py-0.5 text-[11px] font-bold text-charcoal       ">
             الأكثر طلباً
           </span>
         )}
       </div>
 
       {/* الموبايل */}
-      <div className="flex flex-1 flex-col px-1 pb-0.5 pt-2.5 lg:hidden">
+      <div className="flex flex-1 flex-col px-1 pb-0.5 pt-2.5 ">
         <h3 className="font-body text-[14px] font-bold leading-5 text-ink">
           <span dir="ltr" className="[unicode-bidi:isolate]">
             {model.modelNumber}
@@ -60,7 +63,7 @@ export default function ProductCard({ model }: { model: DoorModel }) {
       </div>
 
       {/* الديسكتوب - بدون تغيير */}
-      <div className="hidden p-5 lg:block">
+      <div className="hidden p-5 ">
         <p className="text-xs font-medium text-muted">{model.modelNumber}</p>
         <h3 className="mt-1 font-display text-base font-bold text-ink">{displayName}</h3>
         {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}

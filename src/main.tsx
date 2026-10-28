@@ -5,6 +5,7 @@ import App from "./App";
 import { initMetaPixel } from "./lib/metaPixel";
 import "./index.css";
 import "./styles/brand-colors.css";
+import "./styles/desktop.css";
 
 initMetaPixel();
 

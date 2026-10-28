@@ -33,7 +33,7 @@ async function realStore(database) {
   return store;
 }
 
-test("AC-02 untouched bulk form creates seven independent records via the real addModel path", async () => {
+test("AC-02 bulk form creates seven independent records via the real addModel path", async () => {
   const database = testDatabase();
   const store = await realStore(database);
   const slots = [], refs = [];

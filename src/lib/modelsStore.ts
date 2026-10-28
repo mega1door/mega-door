@@ -65,11 +65,18 @@ function uniqueId(base: string, existing: DoorModel[]): string {
   return id;
 }
 
-export async function addModel(data: Omit<DoorModel, "id">): Promise<DoorModel> {
+export async function addModel(data: Omit<DoorModel, "id">, retry?: { id: string }): Promise<DoorModel> {
   const current = getModelsSnapshot();
-  const id = uniqueId(data.modelNumber || data.name, current);
-  const { error } = await supabase.from("models").insert({ id, ...modelToRow(data) });
-  if (error) throw error;
+  const id = retry?.id ?? uniqueId(data.modelNumber || data.name, current);
+  const row = { id, ...modelToRow(data) };
+  const { error } = await supabase.from("models").insert(row);
+  if (error) {
+    if (!retry) throw error;
+    // A timeout may arrive after the insert committed. Reuse the same primary key,
+    // and accept recovery only when the complete saved payload is identical.
+    const { data: existing, error: readError } = await supabase.from("models").select(MODEL_COLUMNS).eq("id", id).maybeSingle();
+    if (readError || !existing || !Object.entries(row).every(([key, value]) => JSON.stringify(existing[key as keyof ModelRow]) === JSON.stringify(value))) throw error;
+  }
   await fetchModels();
   return { ...data, id };
 }

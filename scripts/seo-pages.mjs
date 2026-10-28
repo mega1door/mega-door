@@ -25,7 +25,12 @@ export function renderModelPage(template, model, categoryLabel) {
   const meta = modelMetadata(model, categoryLabel);
   const details = [["القسم", categoryLabel], ["الخامة", model.material], ["اللون", model.color], ["كود اللون", model.colorCode], ["القياسات", model.dimensions]]
     .filter(([, value]) => value?.trim()).map(([key, value]) => `<div><dt>${key}</dt><dd>${escapeHtml(value)}</dd></div>`).join("");
-  const images = (meta.product.image || []).map((url, i) => `<img class="aspect-[3/4] max-h-[600px] object-contain" src="${escapeHtml(url)}" alt="${escapeHtml(meta.alt)} — صورة ${i + 1}" />`).join("");
+  const images = (meta.product.image || []).map((url, i) => {
+    const image = `<img class="aspect-[3/4] max-h-[600px] object-contain" src="${escapeHtml(url)}" alt="${escapeHtml(meta.alt)} — صورة ${i + 1}" loading="${i === 0 ? "eager" : "lazy"}" />`;
+    // React loads other originals only when visited. Keep their crawlable/no-JS
+    // fallback without letting the HTML preload scanner download the entire gallery.
+    return i === 0 ? image : `<noscript>${image}</noscript>`;
+  }).join("");
   const content = `<main class="mx-auto max-w-content px-4 py-14 sm:px-6 lg:py-20"><h1 class="font-display text-3xl font-extrabold text-ink">${escapeHtml(meta.name)}</h1><p>${escapeHtml(meta.description)}</p>${images}<dl>${details}</dl>${model.specs?.length ? `<ul>${model.specs.map((spec) => `<li>${escapeHtml(spec)}</li>`).join("")}</ul>` : ""}<a href="${absoluteSiteUrl("/")}">ميكا للأبواب</a></main>`;
   return renderLanding(template, meta, content, meta.product);
 }

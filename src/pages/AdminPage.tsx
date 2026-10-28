@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { useModels, addModel, updateModel, deleteModel } from "../lib/modelsStore";
 import { useCategories, getCategoryById } from "../lib/categoriesStore";
 import { setPageSEO } from "../lib/seo";
-import { supabase } from "../lib/supabaseClient";
+import { signOutAdmin } from "../lib/adminAuth";
+import { useAdminAccess } from "../lib/adminAccess";
+import AdminAccountsManager from "../components/admin/AdminAccountsManager";
+import DeleteOwnAccount from "../components/admin/DeleteOwnAccount";
 import ModelForm, { type ModelFormValues } from "../components/admin/ModelForm";
 import CategoryManager from "../components/admin/CategoryManager";
 import SpecTemplateManager from "../components/admin/SpecTemplateManager";
@@ -16,18 +19,21 @@ import BulkModelForm from "../components/admin/BulkModelForm";
 import HeroModelsManager from "../components/admin/HeroModelsManager";
 import HeroFallbackManager from "../components/admin/HeroFallbackManager";
 
-type Tab = "models" | "cats" | "specs" | "hero" | "settings";
+type Tab = "models" | "cats" | "specs" | "hero" | "settings" | "accounts" | "profile";
 const TABS: { id: Tab; label: string }[] = [
   { id: "models", label: "الموديلات" },
   { id: "cats", label: "الأقسام" },
   { id: "specs", label: "المواصفات" },
   { id: "hero", label: "الهيرو" },
   { id: "settings", label: "إعدادات الموقع" },
+  { id: "profile", label: "حسابي" },
 ];
 
 type View = { mode: "list" } | { mode: "add" } | { mode: "bulk" } | { mode: "edit"; id: string };
 
 export default function AdminPage() {
+  const { role, user } = useAdminAccess();
+  const tabs = role === "owner" ? [...TABS, { id: "accounts" as const, label: "الحسابات" }] : TABS;
   const models = useModels();
   const categories = useCategories();
   const [view, setView] = useState<View>({ mode: "list" });
@@ -106,7 +112,7 @@ export default function AdminPage() {
         ? "إضافة موديل"
         : tab === "models" && view.mode === "edit"
           ? `تعديل: ${editingModel?.name ?? ""}`
-          : TABS.find((t) => t.id === tab)!.label;
+          : tabs.find((t) => t.id === tab)?.label ?? "لوحة الإدارة";
 
   return (
     <AdminLoginGate><CatalogBoundary>
@@ -125,7 +131,7 @@ export default function AdminPage() {
             </svg>
             القائمة
           </button>
-          <p className="admin-nav-title">{TABS.find((t) => t.id === tab)!.label}</p>
+          <p className="admin-nav-title">{tabs.find((t) => t.id === tab)?.label ?? "لوحة الإدارة"}</p>
         </div>
 
         {navOpen && (
@@ -153,7 +159,7 @@ export default function AdminPage() {
               ✕
             </button>
           </div>
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <button
               key={t.id}
               type="button"
@@ -168,13 +174,15 @@ export default function AdminPage() {
           <Link to="/" className="admin-nav-item">
             عرض الموقع
           </Link>
-          <button type="button" onClick={() => supabase.auth.signOut()} className="admin-nav-item">
+          <button type="button" onClick={() => { void signOutAdmin().catch(() => setNotice("تعذّر تسجيل الخروج. حاولي مجدداً.")); }} className="admin-nav-item">
             تسجيل الخروج
           </button>
         </aside>
 
         <div className="min-w-0 flex-1">
           <div className="mx-auto max-w-[1100px] px-4 py-5 lg:px-7 lg:py-6">
+            {tab === "accounts" && role === "owner" && <AdminAccountsManager />}
+            {tab === "profile" && <section className="admin-card"><h2 className="admin-h3">حسابي</h2><p dir="ltr">{user?.email}</p><DeleteOwnAccount /></section>}
             {/* العنوان بتبويب الموديلات بس - باقي التبويبات بيها عنوانها داخل البطاقة */}
             {tab === "models" && (
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">

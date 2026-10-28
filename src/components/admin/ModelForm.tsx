@@ -24,6 +24,7 @@ const emptyValues: ModelFormValues = {
   category: "",
   material: "",
   color: "",
+  colorCode: "",
   dimensions: "",
   specs: [],
   usage: "",
@@ -185,6 +186,19 @@ export default function ModelForm({
             value={values.color ?? ""}
             onChange={(e) => update("color", e.target.value)}
             placeholder="مثال: بني جوزي"
+          />
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="model-color-code">كود اللون (اختياري)</label>
+          <input
+            id="model-color-code"
+            name="color_code"
+            type="text"
+            dir="ltr"
+            className={inputClass}
+            value={values.colorCode ?? ""}
+            onChange={(e) => update("colorCode", e.target.value)}
+            placeholder="مثال: 00205"
           />
         </div>
         <div>

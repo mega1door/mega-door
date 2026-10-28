@@ -111,7 +111,8 @@ export default function MobileHero({
           style={{ zIndex: i === index ? 2 : i === prev ? 1 : 0 }}
           onTransitionEnd={() => i === index && setPrev(null)}
         >
-          {s.fit === "contain" && (
+          {(
+
             <img
               src={s.src}
               alt=""
@@ -119,7 +120,7 @@ export default function MobileHero({
               draggable={false}
               loading={i === 0 ? "eager" : "lazy"}
               decoding="async"
-              className="absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-45 blur-2xl"
+              className={`${s.fit === "contain" ? "" : "hidden lg:block "}absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-45 blur-2xl`}
             />
           )}
           <img

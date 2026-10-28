@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 
 /**
@@ -68,9 +68,9 @@ export default function ResetPasswordPage() {
         <div className={cardClass}>
           <h1 className="mb-1 font-display text-lg font-extrabold text-ink">رابط غير صالح</h1>
           <p className="text-sm text-muted">
-            رابط إعادة تعيين كلمة المرور منتهي الصلاحية أو غير صحيح. اطلب رابطاً جديداً من لوحة تحكم
-            Supabase.
+            رابط إعادة تعيين كلمة المرور منتهي الصلاحية أو غير صحيح. اطلبي رابطاً جديداً من صفحة تسجيل الدخول.
           </p>
+          <Link to="/admin" className="mt-3 inline-block text-sm text-ink underline">طلب رابط جديد</Link>
         </div>
       </div>
     );

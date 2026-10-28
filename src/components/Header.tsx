@@ -19,6 +19,7 @@ export default function Header() {
   // المنسدلة تحت الهيدر عند فتح الهمبرغر، ما فيه نسخة نصية ظاهرة بالهيدر نفسه.
   const navLinks = [
     { to: "/", label: "الرئيسية", end: true },
+    { to: "/search", label: "البحث عن موديل", end: false },
     ...categories.map((c) => ({ to: `/${c.id}`, label: c.label, end: false })),
   ];
 

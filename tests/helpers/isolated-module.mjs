@@ -4,7 +4,8 @@ import { readFile } from "node:fs/promises";
 
 /** Runs the real module with explicitly supplied imports. No production client/network. */
 export async function isolatedModule(file, imports, globals = {}) {
-  const source = await readFile(file, "utf8");
+  // Vite replaces this public base path at build time; mirror that replacement in isolation.
+  const source = (await readFile(file, "utf8")).replace(/import\.meta\.env\.BASE_URL/g, JSON.stringify("/mega-door/"));
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   const module = { exports: {} };
   new vm.Script(code, { filename: file }).runInNewContext({

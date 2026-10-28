@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const TRACK_TRANSITION = "transform 280ms cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -30,6 +30,25 @@ export default function SwipeCarousel({
   const lastKeyRef = useRef<string | undefined>(undefined);
   const indexRef = useRef(index);
   indexRef.current = index;
+  const [visited, setVisited] = useState<{ key: string | undefined; urls: string[] }>({ key: resetKey, urls: [] });
+  useEffect(() => {
+    const current = images[index];
+    setVisited(previous => {
+      const urls = previous.key === resetKey ? previous.urls : [];
+      if (previous.key === resetKey && (!current || urls.includes(current))) return previous;
+      return { key: resetKey, urls: current ? [...urls, current] : urls };
+    });
+  }, [images, index, resetKey]);
+
+  function prepareAdjacentImages() {
+    if (count < 2) return;
+    const adjacent = [images[index], images[(index + 1) % count], images[(index - 1 + count) % count]];
+    setVisited(previous => {
+      const urls = previous.key === resetKey ? previous.urls : [];
+      if (previous.key === resetKey && adjacent.every(url => urls.includes(url))) return previous;
+      return { key: resetKey, urls: [...new Set([...urls, ...adjacent])] };
+    });
+  }
 
   const frameWidth = () => frameRef.current?.clientWidth ?? 300;
 
@@ -238,6 +257,7 @@ export default function SwipeCarousel({
       ref={frameRef}
       data-swipe-gallery
       tabIndex={0}
+      onPointerDown={prepareAdjacentImages}
       aria-roledescription="carousel"
       aria-label="معرض صور الموديل"
       onKeyDown={(e) => {
@@ -251,7 +271,7 @@ export default function SwipeCarousel({
         {images.map((src, i) => (
           <img
             key={src}
-            src={src}
+            src={i === index || (visited.key === resetKey && visited.urls.includes(src)) ? src : undefined}
             alt={i === index ? getAlt(i) : ""}
             aria-hidden={i !== index}
             draggable={false}

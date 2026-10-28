@@ -10,7 +10,7 @@ import CircularCarousel from "../components/CircularCarousel";
 import MobileHero from "../components/MobileHero";
 import PopularSlider from "../components/PopularSlider";
 import MobileCatalog from "../components/MobileCatalog";
-import MobileCategoryShowcase from "../components/MobileCategoryShowcase";
+import DesktopCatalog from "../components/DesktopCatalog";
 import { getThumbnailUrl, getFullImageUrl } from "../lib/imageUrl";
 import { splitHeroImages } from "../lib/heroImages";
 
@@ -133,7 +133,7 @@ export default function HomePage() {
         <MobileCatalog />
       </div>
       <div className="hidden pt-8 lg:block">
-        <MobileCategoryShowcase />
+        <DesktopCatalog />
       </div>
 
       {/* ===== الديسكتوب (lg فأكبر) - بدون تغيير بانتظار اعتماد تصميمه ===== */}
