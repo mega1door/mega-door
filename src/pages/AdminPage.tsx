@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useModels, addModel, updateModel, deleteModel } from "../lib/modelsStore";
 import { useCategories, getCategoryById } from "../lib/categoriesStore";
 import { setPageSEO } from "../lib/seo";
-import { signOutAdmin } from "../lib/adminAuth";
+import { ACCOUNT_MANAGEMENT_ENABLED, signOutAdmin } from "../lib/adminAuth";
 import { useAdminAccess } from "../lib/adminAccess";
 import AdminAccountsManager from "../components/admin/AdminAccountsManager";
 import DeleteOwnAccount from "../components/admin/DeleteOwnAccount";
@@ -33,7 +33,7 @@ type View = { mode: "list" } | { mode: "add" } | { mode: "bulk" } | { mode: "edi
 
 export default function AdminPage() {
   const { role, user } = useAdminAccess();
-  const tabs = role === "owner" ? [...TABS, { id: "accounts" as const, label: "الحسابات" }] : TABS;
+  const tabs = ACCOUNT_MANAGEMENT_ENABLED && role === "owner" ? [...TABS, { id: "accounts" as const, label: "الحسابات" }] : TABS.filter(t => ACCOUNT_MANAGEMENT_ENABLED || t.id !== "profile");
   const models = useModels();
   const categories = useCategories();
   const [view, setView] = useState<View>({ mode: "list" });
@@ -181,8 +181,8 @@ export default function AdminPage() {
 
         <div className="min-w-0 flex-1">
           <div className="mx-auto max-w-[1100px] px-4 py-5 lg:px-7 lg:py-6">
-            {tab === "accounts" && role === "owner" && <AdminAccountsManager />}
-            {tab === "profile" && <section className="admin-card"><h2 className="admin-h3">حسابي</h2><p dir="ltr">{user?.email}</p><DeleteOwnAccount /></section>}
+            {ACCOUNT_MANAGEMENT_ENABLED && tab === "accounts" && role === "owner" && <AdminAccountsManager />}
+            {ACCOUNT_MANAGEMENT_ENABLED && tab === "profile" && <section className="admin-card"><h2 className="admin-h3">حسابي</h2><p dir="ltr">{user?.email}</p><DeleteOwnAccount /></section>}
             {/* العنوان بتبويب الموديلات بس - باقي التبويبات بيها عنوانها داخل البطاقة */}
             {tab === "models" && (
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">

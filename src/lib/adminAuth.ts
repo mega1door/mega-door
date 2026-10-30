@@ -27,3 +27,6 @@ export async function deleteOwnAccount(password: string, confirmation: string) {
   if (error || data?.success !== true) throw error || new Error("Deletion unavailable");
   await signOutAdmin();
 }
+
+// Enable only after approved hosted RLS/Auth verification.
+export const ACCOUNT_MANAGEMENT_ENABLED = false;

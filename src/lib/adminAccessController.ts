@@ -9,7 +9,7 @@ export type AdminAccessState = {
 };
 
 /** Supabase Auth remains the only identity system; the RPC supplies server authorization. */
-export function createAdminAccessController(client: Pick<SupabaseClient, "auth" | "rpc">, defer: (callback: () => void) => void = callback => { setTimeout(callback, 0); }) {
+export function createAdminAccessController(client: Pick<SupabaseClient, "auth" | "rpc">, defer: (callback: () => void) => void = callback => { setTimeout(callback, 0); }, ownerOnly = false) {
   let state: AdminAccessState = { status: "loading", role: null, user: null };
   let revision = 0, started = false;
   const listeners = new Set<() => void>();
@@ -18,6 +18,14 @@ export function createAdminAccessController(client: Pick<SupabaseClient, "auth" 
     const request = ++revision;
     update({ status: user ? "loading" : "signed-out", role: null, user });
     if (!user) return;
+    // Compatibility with the existing owner gate. This is UI authorization only;
+    // unchanged production RLS remains responsible for all database writes.
+    if (ownerOnly) {
+      const owner = user.id === "4ece01b2-d222-4291-b404-60bff142177f" ||
+        user.email?.trim().toLowerCase() === "hebu.ozen@gmail.com";
+      update({ status: owner ? "authorized" : "pending", role: owner ? "owner" : null, user });
+      return;
+    }
     // Never await another Supabase call inside onAuthStateChange's callback.
     defer(() => { void (async () => {
       try {

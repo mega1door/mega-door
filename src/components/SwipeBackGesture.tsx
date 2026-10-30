@@ -40,7 +40,8 @@ export default function SwipeBackGesture() {
 
     function onPointerDown(e: PointerEvent) {
       const target = e.target as HTMLElement;
-      // معرض صور الموديل (وكاروسيل الهيرو) عنده سحب خاص بالمس والماوس، فما نرجع للخلف من فوگه.
+      // كل السلايدرات ومعارض الصور (وكاروسيل الهيرو) معلّمة data-swipe-gallery وعندها سحب خاص
+      // باللمس والماوس: ما نرجع للخلف من فوقها أبداً (حتى لو عناصرها كلها تكفي الشاشة).
       const inTouchGallery = target.closest("[data-swipe-gallery]");
       if (target.closest("input, textarea, select") || inTouchGallery || isInsideHorizontalScroller(target)) {
         tracking = false;

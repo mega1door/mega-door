@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import http from "node:http";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { writeCatalogSnapshot } from "../scripts/catalog-output.mjs";
 import { importTS } from "../scripts/import-ts.mjs";
@@ -11,7 +12,7 @@ const { searchModels } = await importTS("src/lib/search.ts");
 const template = await readFile("dist/index.html", "utf8"); // Real Vite output is required.
 
 test("AC-04/05 seven actual generated pages: direct GET, refresh, unique HTML metadata and working images", async () => {
-  const root = await mkdtemp(path.resolve("../acceptance-landings-"));
+  const root = await mkdtemp(path.join(tmpdir(), "mega-acceptance-landings-"));
   let server;
   try {
     await writeCatalogSnapshot({ distDir: root, template, models, categories });
@@ -69,13 +70,13 @@ test("AC-04/05 seven actual generated pages: direct GET, refresh, unique HTML me
     assert.equal(titles.size, 7); assert.equal(canonicals.size, 7);
   } finally {
     if (server) await new Promise(resolve => server.close(resolve));
-    assert.ok(root.startsWith(path.resolve("..") + path.sep));
+    assert.ok(path.dirname(root) === path.resolve(tmpdir()) && path.basename(root).startsWith("mega-acceptance-"));
     await rm(root, { recursive: true, force: true });
   }
 });
 
 test("AC-06 next generation updates color/specs, adds new models, removes stale model pages and sitemap entries", async () => {
-  const root = await mkdtemp(path.resolve("../acceptance-refresh-"));
+  const root = await mkdtemp(path.join(tmpdir(), "mega-acceptance-refresh-"));
   try {
     await writeCatalogSnapshot({ distDir: root, template, models, categories });
     const changed = models.slice(1).map((model, i) => i === 0 ? { ...model, color: "جوزي معدل", specs: ["مواصفة محدثة مؤكدة"] } : model);
@@ -90,7 +91,7 @@ test("AC-06 next generation updates color/specs, adds new models, removes stale 
     await assert.rejects(writeCatalogSnapshot({ distDir: root, template, models: [...changed, changed[0]], categories }), /Duplicate model ID/);
     assert.equal(await readFile(path.join(root, "sitemap.xml"), "utf8"), xml);
   } finally {
-    assert.ok(root.startsWith(path.resolve("..") + path.sep));
+    assert.ok(path.dirname(root) === path.resolve(tmpdir()) && path.basename(root).startsWith("mega-acceptance-"));
     await rm(root, { recursive: true, force: true });
   }
 });

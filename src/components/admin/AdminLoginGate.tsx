@@ -1,7 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useAdminAccess, refreshAdminAccess } from "../../lib/adminAccess";
-import { registerAdminCandidate, requestAdminPasswordReset, signOutAdmin } from "../../lib/adminAuth";
+import { ACCOUNT_MANAGEMENT_ENABLED, registerAdminCandidate, requestAdminPasswordReset, signOutAdmin } from "../../lib/adminAuth";
 import DeleteOwnAccount from "./DeleteOwnAccount";
 
 function AuthShell({ children }: { children: ReactNode }) {
@@ -70,7 +70,7 @@ export default function AdminLoginGate({ children }: { children: ReactNode }) {
       <button type="button" className={primaryClass} onClick={() => { void refreshAdminAccess(); }}>إعادة التحقق</button>
       <button type="button" className="mt-4 min-h-11 w-full rounded-xl text-sm text-silver-light transition hover:text-white" onClick={() => { void signOutAdmin().catch(() => setError("تعذّر تسجيل الخروج. حاولي مجدداً.")); }}>تسجيل الخروج</button>
       {error && <p role="alert" className="mt-4 rounded-xl border border-red-300/20 bg-red-300/5 p-3 text-sm leading-6 text-red-300">{error}</p>}
-      <DeleteOwnAccount />
+      {ACCOUNT_MANAGEMENT_ENABLED && <DeleteOwnAccount />}
     </AuthShell>
   );
   return (
@@ -99,7 +99,7 @@ export default function AdminLoginGate({ children }: { children: ReactNode }) {
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7"><path strokeLinecap="round" strokeLinejoin="round" d="m14 6-6 6 6 6M8 12h13" /></svg>
         </button>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-white/10 pt-5 text-sm">
-          {([['login','تسجيل الدخول'],['register','إنشاء حساب'],['reset','نسيت كلمة المرور']] as const).filter(([value]) => value !== mode && !(mode === "login" && value === "reset")).map(([value,label]) =>
+          {([['login','تسجيل الدخول'],['register','إنشاء حساب'],['reset','نسيت كلمة المرور']] as const).filter(([value]) => value !== mode && (ACCOUNT_MANAGEMENT_ENABLED || value !== "register") && !(mode === "login" && value === "reset")).map(([value,label]) =>
             <button key={value} type="button" disabled={submitting} className="min-h-10 font-medium text-ink underline decoration-[var(--mega-pure-blue)] decoration-2 underline-offset-[6px] transition hover:text-white" onClick={() => { setMode(value); setError(null); setMessage(null); setPassword(""); setConfirm(""); }}>{label}</button>)}
         </div>
       </form>

@@ -73,7 +73,7 @@ test("login gate hides all admin children for pending/error users and supports r
     react: harness.hooks, "react/jsx-runtime": harness.jsxRuntime,
     "../../lib/adminAccess": { useAdminAccess: () => access, refreshAdminAccess() {} },
     "../../lib/supabaseClient": { supabase: { auth: { signInWithPassword: async args => { calls.push(args); return { error: null }; } } } },
-    "../../lib/adminAuth": { registerAdminCandidate: async (...args) => calls.push(["signup", ...args]), requestAdminPasswordReset: async email => calls.push(["reset", email]), signOutAdmin: async () => {} },
+    "../../lib/adminAuth": { ACCOUNT_MANAGEMENT_ENABLED: true, registerAdminCandidate: async (...args) => calls.push(["signup", ...args]), requestAdminPasswordReset: async email => calls.push(["reset", email]), signOutAdmin: async () => {} },
   });
   const render = () => harness.render(gate.default, { children: "PRIVATE_ADMIN_CONTENT" });
   assert.ok(!text(render()).includes("PRIVATE_ADMIN_CONTENT"));
@@ -155,4 +155,17 @@ test("existing password-recovery page updates only the currently authenticated a
     assert.deepEqual(structuredClone(changes), [{ actor: user.id, payload: { password: "isolated-new-password" } }]);
     assert.equal(navigation[0][0], "/admin"); assert.ok(text(render()).includes("تم بنجاح"));
   }
+});
+
+
+test('active owner-only mode has zero RPC calls, rejects unrelated users and clears on logout', async () => {
+  let user=OWNER,listener,rpcCalls=0,error=null;
+  const client={auth:{getSession:async()=>({data:{session:user?{user}:null},error}),onAuthStateChange:cb=>{listener=cb;}},rpc:()=>{rpcCalls++;throw Error('RPC must never run');}};
+  const access=createAdminAccessController(client,undefined,true);
+  access.start();await flush();assert.equal(access.getSnapshot().status,'authorized');assert.equal(access.getSnapshot().role,'owner');
+  user=ALAA;await access.refresh();assert.equal(access.getSnapshot().status,'pending');assert.equal(access.getSnapshot().role,null);
+  listener('SIGNED_IN',{user:{...ALAA,email:' HEBU.OZEN@GMAIL.COM '}});assert.equal(access.getSnapshot().role,'owner');
+  listener('SIGNED_OUT',null);assert.equal(access.getSnapshot().status,'signed-out');
+  error=Error('session failed');await access.refresh();assert.equal(access.getSnapshot().status,'error');assert.equal(access.getSnapshot().role,null);
+  assert.equal(rpcCalls,0);
 });

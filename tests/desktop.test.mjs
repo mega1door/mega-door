@@ -38,3 +38,28 @@ test('desktop CSS cannot affect mobile and imports the existing palette without 
   const main=await readFile('src/main.tsx','utf8');
   assert.ok(main.indexOf('./styles/desktop.css')>main.indexOf('./styles/brand-colors.css'));
 });
+
+
+test('merged RTL gallery: short swipe advances once, respects boundaries and cleans listeners', async () => {
+  const gallery=await isolatedModule('src/lib/gallery.ts',{});
+  const events={},moves=[];
+  const el={scrollWidth:900,clientWidth:300,scrollLeft:0,
+    getBoundingClientRect:()=>({left:0,width:300}),
+    addEventListener:(name,fn)=>events[name]=fn,
+    removeEventListener:(name,fn)=>{assert.equal(events[name],fn);delete events[name];},
+    scrollTo:value=>moves.push(value.left)};
+  el.children=[0,1,2].map(i=>({getBoundingClientRect:()=>({left:-i*300-el.scrollLeft,width:300})}));
+  const clean=gallery.attachSwipeAssist(el);
+  events.touchstart();el.scrollLeft=-30;events.touchend();assert.deepEqual(moves,[-300]);
+  moves.length=0;el.scrollLeft=-600;events.touchstart();el.scrollLeft=-630;events.touchend();assert.deepEqual(moves,[]);
+  clean();assert.deepEqual(events,{});
+  assert.equal(gallery.GALLERY_DIR,'rtl');
+});
+
+
+test('footer contact is always visible; header retains two collapsed accordions', async () => {
+ const h=componentHarness();const {default:Contact}=await isolatedModule('src/components/ContactAccordions.tsx',{
+ 'react/jsx-runtime':h.jsxRuntime,'../lib/whatsapp':{buildSalesWhatsAppLink:()=> 'https://wa.me/test'},'../lib/metaPixel':{trackContact:()=>{}},'../lib/siteSettingsStore':{useSiteSettings:()=>({contactEmail:''})}});
+ const footer=Contact({source:'footer'});assert.equal(nodes(footer,n=>n.type==='details').length,0);assert.match(text(footer),/07751420001/);assert.match(text(footer),/السيدية/);assert.equal(nodes(footer,n=>n.props.href==='tel:+9647751420001').length,1);
+ const menu=Contact({source:'menu'});assert.equal(nodes(menu,n=>n.type==='details').length,2);assert.ok(nodes(menu,n=>n.type==='details').every(n=>!n.props.open));
+});

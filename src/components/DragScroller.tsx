@@ -1,15 +1,17 @@
-import { useEffect, useRef } from "react";
-import type { PointerEvent as ReactPointerEvent, ReactNode, Ref } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useRef } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactElement, ReactNode, Ref } from "react";
+import { GALLERY_DIR, attachSwipeAssist, nearestChildLeft } from "../lib/gallery";
 
 /**
- * حاوية سحب أفقي موحّدة لكل السلايدرات ومعارض الصور بالموقع.
+ * حاوية سحب أفقي موحّدة لكل السلايدرات بالموقع (أنواع الأبواب، الأكثر طلباً، شريط المصغّرات).
  *
- * - الاتجاه: RTL - أول عنصر على اليمين، والعناصر التالية تأتي نحو اليسار (نفس ترتيب الموقع).
- * - بدون تكرار دائري: أول عنصر وآخر عنصر هما الحد الفعلي للتمرير (overscroll-x-contain).
- * - اللمس: تمرير المتصفح الأصلي مع scroll-snap (ناعم + عنصر واحد بكل سحبة)، والتمرير
- *   العمودي للصفحة يبقى طبيعياً (touch-action الافتراضي).
- * - الماوس: سحب يدوي بنفس الحاوية، ثم تثبيت (snap) على أقرب عنصر عند الإفلات.
- * - بدون أسهم وبدون حركة تلقائية.
+ * - الاتجاه من مصدر واحد (lib/gallery.ts): المحتوى يتبع الإصبع دائماً، والعناصر مرتّبة بنفس
+ *   اتجاه السحب. عناصر الحاوية تأخذ dir="rtl" تلقائياً حتى يبقى النص العربي سليماً.
+ * - اللمس: تمرير المتصفح الأصلي مع scroll-snap (على thread الـ compositor = ناعم وخفيف)،
+ *   وعنصر واحد بكل سحبة (snap-stop). التمرير العمودي للصفحة طبيعي.
+ * - الماوس: سحب يدوي ثم تثبيت على أقرب عنصر. بدون تكرار دائري ولا أسهم ولا حركة تلقائية.
+ * - data-swipe-gallery: يخبر حركة "الرجوع بالسحب" العامة أن تتجاهل هذه الحاوية بالكامل
+ *   (بدل الاعتماد على كشف التمرير، اللي كان يفشل لما العناصر كلها تكفي الشاشة).
  */
 export default function DragScroller({
   children,
@@ -34,7 +36,6 @@ export default function DragScroller({
   useEffect(() => {
     const el = localRef.current;
     if (!el) return;
-
     // بعد سحب بالماوس نمنع النقر على الرابط/الزر اللي انسحبنا من فوقه
     function onClickCapture(e: MouseEvent) {
       if (dragRef.current?.moved) {
@@ -48,33 +49,13 @@ export default function DragScroller({
     }
     el.addEventListener("click", onClickCapture, true);
     el.addEventListener("dragstart", onDragStart);
+    const detachAssist = snap ? attachSwipeAssist(el) : undefined;
     return () => {
       el.removeEventListener("click", onClickCapture, true);
       el.removeEventListener("dragstart", onDragStart);
+      detachAssist?.();
     };
-  }, []);
-
-  function snapToNearest(el: HTMLDivElement) {
-    if (!snap) return;
-    // موضع التمرير الفعلي لكل عنصر (مقصوص بحدود الحاوية: أول عنصر 0 وآخر عنصر النهاية)
-    // ثم نختار الأقرب للموضع الحالي - نفس منطق scroll-snap الأصلي.
-    // بالـ RTL قيمة scrollLeft تبدأ من 0 (أقصى اليمين) وتصير سالبة كلما تقدّمنا لليسار.
-    const max = el.scrollWidth - el.clientWidth;
-    const current = -el.scrollLeft;
-    let best = current;
-    let bestDist = Infinity;
-    Array.from(el.children).forEach((c) => {
-      const child = c as HTMLElement;
-      const fromRight = el.scrollWidth - (child.offsetLeft + child.offsetWidth / 2);
-      const pos = Math.min(Math.max(fromRight - el.clientWidth / 2, 0), max);
-      const d = Math.abs(pos - current);
-      if (d < bestDist) {
-        bestDist = d;
-        best = pos;
-      }
-    });
-    el.scrollTo({ left: -best, behavior: "smooth" });
-  }
+  }, [snap]);
 
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
     if (e.pointerType !== "mouse" || e.button !== 0) return; // اللمس يتكفّل به المتصفح
@@ -97,7 +78,7 @@ export default function DragScroller({
         /* غير مدعوم: السحب يشتغل بدونه */
       }
     }
-    el.scrollLeft = d.left - dx;
+    el.scrollLeft = d.left - dx; // المحتوى يتبع المؤشر بكلا الاتجاهين
   }
 
   function endDrag(e: ReactPointerEvent<HTMLDivElement>) {
@@ -109,7 +90,7 @@ export default function DragScroller({
       return;
     }
     el.style.cursor = "";
-    snapToNearest(el);
+    if (snap) el.scrollTo({ left: nearestChildLeft(el), behavior: "smooth" });
     // نرجّع الـ snap بعد انتهاء الانتقال الناعم، ونفك حجب النقر بعد انتهاء حدث click الحالي
     window.setTimeout(() => {
       el.style.scrollSnapType = "";
@@ -119,10 +100,15 @@ export default function DragScroller({
     }, 0);
   }
 
+  const items = Children.map(children, (c) =>
+    isValidElement(c) ? cloneElement(c as ReactElement<{ dir?: string }>, { dir: "rtl" }) : c
+  );
+
   return (
     <div
       ref={setRefs}
-      dir="rtl"
+      dir={GALLERY_DIR}
+      data-swipe-gallery
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -131,7 +117,7 @@ export default function DragScroller({
         snap ? "snap-x snap-mandatory" : ""
       } ${className}`.trim()}
     >
-      {children}
+      {items}
     </div>
   );
 }

@@ -17,6 +17,18 @@ const detailLinkClass =
  */
 export default function ContactAccordions({ source }: { source: "menu" | "footer" }) {
   const { contactEmail } = useSiteSettings();
+  if (source === "footer") return (
+    <div className="flex flex-col gap-1 px-3 py-2.5 text-sm text-ink/85">
+      <p className="font-semibold">عنوان المعرض</p>
+      <a href={SHOWROOM_MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-2.5 rounded-lg transition-colors hover:text-ink">
+        <PinIcon />{SHOWROOM_ADDRESS}
+      </a>
+      <a href="tel:+9647751420001" onClick={() => trackContact("footer_phone")} className="flex min-h-[44px] items-center gap-2.5 rounded-lg transition-colors hover:text-ink">
+        <span>الهاتف</span><span dir="ltr" className="[unicode-bidi:isolate]">07751420001</span>
+      </a>
+      {contactEmail && <a href={`mailto:${contactEmail}`} className={detailLinkClass}><MailIcon /><span dir="ltr">{contactEmail}</span></a>}
+    </div>
+  );
   return (
     <>
       <details className="group">
