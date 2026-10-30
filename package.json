@@ -9,7 +9,7 @@
     "build": "tsc -b && node scripts/build.mjs",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "test": "node --test tests/catalog.test.mjs tests/loading.test.mjs tests/pages.test.mjs tests/identity.test.mjs tests/bulk.test.mjs tests/invariants.test.mjs tests/audit-fixes.test.mjs tests/admin-access.test.mjs tests/admin-rls.test.mjs tests/self-delete.test.mjs tests/desktop.test.mjs",
+    "test": "node --test tests/catalog.test.mjs tests/loading.test.mjs tests/pages.test.mjs tests/identity.test.mjs tests/bulk.test.mjs tests/invariants.test.mjs tests/audit-fixes.test.mjs tests/admin-access.test.mjs tests/admin-rls.test.mjs tests/self-delete.test.mjs tests/desktop.test.mjs tests/performance.test.mjs",
     "test:built": "node scripts/check-built-seo.mjs",
     "test:acceptance": "node --test tests/landing-acceptance.test.mjs",
     "test:rls": "node --test tests/admin-rls.test.mjs"

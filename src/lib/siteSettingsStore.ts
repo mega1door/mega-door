@@ -1,5 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { supabase } from "./supabaseClient";
+import { splitHeroImages } from "./heroImages";
+import { getFullImageUrl } from "./imageUrl";
+import { preloadHeroImage } from "./heroImagePreload";
 
 /**
  * إعدادات عامة للموقع تُدار من لوحة الإدارة (حالياً: صورة الهيرو فقط) - قاعدة
@@ -31,7 +34,13 @@ async function fetchSettings(): Promise<void> {
     console.error("تعذّرت قراءة إعدادات الموقع من قاعدة البيانات.", error);
     return;
   }
-  cache = { heroImageUrl: data?.hero_image_url ?? null, heroImages: data?.hero_images ?? [], contactEmail: null };
+  const heroImageUrl = data?.hero_image_url ?? null;
+  const heroImages = data?.hero_images ?? [];
+  const { modelUrls, fallbackUrls } = splitHeroImages(heroImages);
+  // Match HomePage's first rendered slide: first selected model, first fallback, or
+  // the configured single image. The hint is inserted before notifying React.
+  preloadHeroImage(modelUrls[0] ? getFullImageUrl(modelUrls[0]) : fallbackUrls[0] ?? heroImageUrl);
+  cache = { heroImageUrl, heroImages, contactEmail: null };
   emitChange();
 }
 void fetchSettings();

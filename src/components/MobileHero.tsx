@@ -69,6 +69,7 @@ export default function MobileHero({
   }, [index, count, interaction]);
 
   const current = slides[index] as MobileHeroSlide | undefined;
+  const nextIndex = count > 1 ? (index + 1) % count : null;
 
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
     startX.current = e.clientX;
@@ -100,7 +101,7 @@ export default function MobileHero({
       }}
       style={{ touchAction: "pan-y" }}
     >
-      {slides.map((s, i) => (
+      {slides.map((s, i) => i === index || i === prev || i === nextIndex ? (
         <div
           key={s.src}
           aria-hidden={i !== index}
@@ -118,7 +119,7 @@ export default function MobileHero({
               alt=""
               aria-hidden="true"
               draggable={false}
-              loading={i === 0 ? "eager" : "lazy"}
+              loading={i === index || i === nextIndex ? "eager" : "lazy"}
               decoding="async"
               className={`${s.fit === "contain" ? "" : "hidden lg:block "}absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-45 blur-2xl`}
             />
@@ -127,15 +128,15 @@ export default function MobileHero({
             src={s.src}
             alt={s.alt}
             draggable={false}
-            loading={i === 0 ? "eager" : "lazy"}
+            loading={i === index || i === nextIndex ? "eager" : "lazy"}
             decoding="async"
-            {...(i === 0 ? { fetchpriority: "high" } : {})}
+            {...(i === index && index === 0 ? { fetchPriority: "high" } : i === nextIndex ? { fetchPriority: "low" } : {})}
             className={`absolute inset-0 h-full w-full select-none ${
               s.fit === "contain" ? "object-contain object-left py-3 pl-3 lg:py-6 lg:pl-[max(1.5rem,calc((100vw_-_1280px)/2_+_1.5rem))]" : "object-cover"
             }`}
           />
         </div>
-      ))}
+      ) : null)}
 
       {/* الصورة الحالية كلها رابط لصفحة موديلها (إذا موجود) */}
       {current?.href && (
