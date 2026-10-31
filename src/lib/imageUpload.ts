@@ -1,6 +1,10 @@
 import { supabase } from "./supabaseClient";
 import { createOptimizedWebPPair, fileToWebPBlob } from "./imageResize";
 
+// Customer room-photo preview is temporarily off. Keep the upload path intact
+// for a future re-enable after its Supabase Storage policy has been reviewed.
+export const CUSTOMER_DESIGN_UPLOADS_ENABLED = false;
+
 /**
  * يرفع الصورة بعد تحويلها تلقائياً إلى صيغة WebP الحديثة والمحسّنة.
  *
@@ -18,6 +22,10 @@ export async function uploadImage(
   file: File,
   folder: "models" | "site" | "custom-designs"
 ): Promise<string> {
+  if (folder === "custom-designs" && !CUSTOMER_DESIGN_UPLOADS_ENABLED) {
+    throw new Error("Customer design uploads are temporarily disabled.");
+  }
+
   const id = crypto.randomUUID();
 
   if (folder === "models") {

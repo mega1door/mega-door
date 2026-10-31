@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { supabase } from "./supabaseClient";
+import { fetchPublicRows } from "./publicDataApi";
 import { splitHeroImages } from "./heroImages";
 import { getFullImageUrl } from "./imageUrl";
 import { preloadHeroImage } from "./heroImagePreload";
@@ -18,6 +18,11 @@ export interface SiteSettings {
   contactEmail: string | null;
 }
 
+interface SiteSettingsRow {
+  hero_image_url: string | null;
+  hero_images: string[] | null;
+}
+
 const initial: SiteSettings = { heroImageUrl: null, heroImages: [], contactEmail: null };
 
 type Listener = () => void;
@@ -29,16 +34,22 @@ function emitChange() {
 }
 
 async function fetchSettings(): Promise<void> {
-  const { data, error } = await supabase.from("site_settings").select("hero_image_url,hero_images").eq("id", true).single();
-  if (error) {
+  let data: SiteSettingsRow | undefined;
+  try {
+    [data] = await fetchPublicRows<SiteSettingsRow>("site_settings", {
+      select: "hero_image_url,hero_images",
+      id: "eq.true",
+      limit: "1",
+    });
+  } catch (error) {
     console.error("تعذّرت قراءة إعدادات الموقع من قاعدة البيانات.", error);
     return;
   }
+  if (!data) return;
   const heroImageUrl = data?.hero_image_url ?? null;
   const heroImages = data?.hero_images ?? [];
   const { modelUrls, fallbackUrls } = splitHeroImages(heroImages);
-  // Match HomePage's first rendered slide: first selected model, first fallback, or
-  // the configured single image. The hint is inserted before notifying React.
+  // Match HomePage's first rendered slide before notifying React.
   preloadHeroImage(modelUrls[0] ? getFullImageUrl(modelUrls[0]) : fallbackUrls[0] ?? heroImageUrl);
   cache = { heroImageUrl, heroImages, contactEmail: null };
   emitChange();
@@ -61,6 +72,7 @@ export function useSiteSettings(): SiteSettings {
 }
 
 export async function updateHeroImage(url: string): Promise<void> {
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase
     .from("site_settings")
     .update({ hero_image_url: url, updated_at: new Date().toISOString() })
@@ -70,6 +82,7 @@ export async function updateHeroImage(url: string): Promise<void> {
 }
 
 export async function updateHeroImages(urls: string[]): Promise<void> {
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase
     .from("site_settings")
     .update({ hero_images: urls, updated_at: new Date().toISOString() })

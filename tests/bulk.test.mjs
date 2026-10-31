@@ -26,6 +26,11 @@ async function realStore(database) {
   const store = await isolatedModule("src/lib/modelsStore.ts", {
     react: { useSyncExternalStore: (_, snapshot) => snapshot() },
     "./supabaseClient": { supabase: database },
+    "./publicDataApi": { fetchPublicRows: async (table, query) => {
+      const { data, error } = await database.from(table).select(query.select).order(query.order);
+      if (error) throw error;
+      return data ?? [];
+    } },
     "./remoteCollection": remote,
     "./modelRecord": records,
   });

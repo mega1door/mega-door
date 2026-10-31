@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabaseConfig";
 
 /**
  * إعداد عميل Supabase لتسجيل الدخول الحقيقي للوحة الإدارة (Supabase Auth).
@@ -12,7 +13,4 @@ import { createClient } from "@supabase/supabase-js";
  *
  * مشروع Supabase: mega-door (ref: ecyxhlkkvjhensgymgdw، منطقة eu-central-1).
  */
-const SUPABASE_URL = "https://ecyxhlkkvjhensgymgdw.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_GrybiRkE_gvw_a5y0-jDVg_CqD82ivD";
-
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);

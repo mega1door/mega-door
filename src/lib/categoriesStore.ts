@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { supabase } from "./supabaseClient";
+import { fetchPublicRows } from "./publicDataApi";
 import { createRemoteCollection } from "./remoteCollection";
 
 export interface DoorCategoryInfo {
@@ -19,15 +19,15 @@ export interface DoorCategoryInfo {
  * يبدأ بلا أقسام افتراضية؛ حالة التحميل والفشل منفصلة عن نجاح الطلب بلا بيانات.
  */
 const collection = createRemoteCollection<DoorCategoryInfo>(async () => {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id,label,description")
-    .order("sort_order", { ascending: true });
-  if (error) {
+  try {
+    return await fetchPublicRows<DoorCategoryInfo>("categories", {
+      select: "id,label,description",
+      order: "sort_order.asc",
+    });
+  } catch (error) {
     console.error("تعذّرت قراءة الأقسام من قاعدة البيانات.", error);
     throw error;
   }
-  return data ?? [];
 });
 export const refreshCategories = collection.refresh;
 const fetchCategories = refreshCategories;
@@ -70,6 +70,7 @@ function uniqueId(base: string, existing: DoorCategoryInfo[]): string {
 }
 
 export async function addCategory(data: { label: string; description: string }): Promise<DoorCategoryInfo> {
+  const { supabase } = await import("./supabaseClient");
   const current = getCategoriesSnapshot();
   const id = uniqueId(slugify(data.label), current);
   const record: DoorCategoryInfo = { id, label: data.label, description: data.description };
@@ -83,6 +84,7 @@ export async function addCategory(data: { label: string; description: string }):
 
 /** تعديل الاسم والوصف فقط - المعرّف (رابط الصفحة) لا يتغيّر بعد الإنشاء حتى لا تنكسر الروابط المفهرسة. */
 export async function updateCategory(id: string, data: { label: string; description: string }): Promise<void> {
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase
     .from("categories")
     .update({ label: data.label, description: data.description })
@@ -92,6 +94,7 @@ export async function updateCategory(id: string, data: { label: string; descript
 }
 
 export async function deleteCategory(id: string): Promise<void> {
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) throw error;
   await fetchCategories();

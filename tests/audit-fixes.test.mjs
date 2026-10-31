@@ -38,6 +38,11 @@ function database(failure) {
 async function storeFor(db) {
   const store = await isolatedModule("src/lib/modelsStore.ts", {
     react: { useSyncExternalStore: (_, snapshot) => snapshot() }, "./supabaseClient": { supabase: db },
+    "./publicDataApi": { fetchPublicRows: async (table, query) => {
+      const { data, error } = await db.from(table).select(query.select).order(query.order);
+      if (error) throw error;
+      return data ?? [];
+    } },
     "./remoteCollection": remote, "./modelRecord": records,
   });
   await store.refreshModels(); return store;
@@ -154,6 +159,37 @@ test("AC3 actual SEO HTML loads only the first image with JS, retains all Produc
   const product = JSON.parse(html.match(/id="model-product-schema"[^>]*>(.*?)<\/script>/s)[1]);
   assert.equal(product.image.length, 7);
   assert.equal([...html.matchAll(/<img\b/g)].length, 7);
+});
+
+test("customer room-photo upload is disabled while model and site image uploads remain available", async () => {
+  let uploads = 0;
+  let conversions = 0;
+  let ids = 0;
+  const uploadModule = await isolatedModule("src/lib/imageUpload.ts", {
+    "./supabaseClient": { supabase: { storage: { from: () => ({
+      upload: async () => { uploads++; return { error: null }; },
+      getPublicUrl: path => ({ data: { publicUrl: `https://images.invalid/${path}` } }),
+    }) } } },
+    "./imageResize": {
+      createOptimizedWebPPair: async () => {
+        conversions++;
+        return { full: { blob: "full" }, thumb: { blob: "thumb" } };
+      },
+      fileToWebPBlob: async () => { conversions++; return { blob: "webp" }; },
+    },
+  }, { crypto: { randomUUID: () => `isolated-${++ids}` } });
+
+  await assert.rejects(
+    uploadModule.uploadImage({ name: "customer-room.jpg" }, "custom-designs"),
+    /disabled/i,
+  );
+  assert.equal(uploads, 0, "disabled customer feature must not call Supabase Storage");
+  assert.equal(conversions, 0, "disabled customer feature must not process the photo");
+
+  assert.match(await uploadModule.uploadImage({ name: "door.jpg" }, "models"), /models\/isolated-1\.webp$/);
+  assert.match(await uploadModule.uploadImage({ name: "hero.jpg" }, "site"), /site\/isolated-2\.webp$/);
+  assert.equal(uploads, 3, "model full+thumbnail and site image uploads remain available");
+  assert.equal(conversions, 2);
 });
 
 test("AC4 desktop menu exposes search while the existing mobile search link remains", async () => {

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { DoorModel } from "../types/model";
-import { supabase } from "./supabaseClient";
+import { fetchPublicRows } from "./publicDataApi";
 import { createRemoteCollection } from "./remoteCollection";
 import { MODEL_COLUMNS, rowToModel, modelToRow, type ModelRow } from "./modelRecord";
 
@@ -14,17 +14,16 @@ import { MODEL_COLUMNS, rowToModel, modelToRow, type ModelRow } from "./modelRec
 
 
 const collection = createRemoteCollection<DoorModel>(async () => {
-  const { data, error } = await supabase
-    .from("models")
-    .select(
-      MODEL_COLUMNS
-    )
-    .order("created_at", { ascending: false });
-  if (error) {
+  try {
+    const data = await fetchPublicRows<ModelRow>("models", {
+      select: MODEL_COLUMNS,
+      order: "created_at.desc",
+    });
+    return data.map(rowToModel);
+  } catch (error) {
     console.error("تعذّرت قراءة الموديلات من قاعدة البيانات.", error);
     throw error;
   }
-  return ((data ?? []) as ModelRow[]).map(rowToModel);
 });
 export const refreshModels = collection.refresh;
 const fetchModels = refreshModels;
@@ -69,6 +68,7 @@ export async function addModel(data: Omit<DoorModel, "id">, retry?: { id: string
   const current = getModelsSnapshot();
   const id = retry?.id ?? uniqueId(data.modelNumber || data.name, current);
   const row = { id, ...modelToRow(data) };
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase.from("models").insert(row);
   if (error) {
     if (!retry) throw error;
@@ -82,12 +82,14 @@ export async function addModel(data: Omit<DoorModel, "id">, retry?: { id: string
 }
 
 export async function updateModel(id: string, data: Omit<DoorModel, "id">): Promise<void> {
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase.from("models").update(modelToRow(data)).eq("id", id);
   if (error) throw error;
   await fetchModels();
 }
 
 export async function deleteModel(id: string): Promise<void> {
+  const { supabase } = await import("./supabaseClient");
   const { error } = await supabase.from("models").delete().eq("id", id);
   if (error) throw error;
   await fetchModels();
